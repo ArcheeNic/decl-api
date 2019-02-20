@@ -1,7 +1,18 @@
 # Декларативный API
 
 ## Установка
-`composer require ...`
+В composer проекта добавить строки
+```
+    "repositories": [
+        {
+            "type": "vcs",
+            "url":  "gogs@gogs.inetpartners.org:eautopay/decl-api.git"
+        }
+    ]
+```
+
+Далее в консоли можно написать
+`composer require eautopay/decl-api`
 
 ## Описание
 DeclApi - библиотека декларативного API
