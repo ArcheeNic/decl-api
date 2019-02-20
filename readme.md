@@ -11,7 +11,7 @@
     * [Создание класса Response](#создание-класса-response)
     * [Создание поинта](#создание-поинта)
     * [Интеграция с laravel 5.4+](#интеграция-с-laravel-54)
-* [Примеры использования]
+* Примеры использования
     * [Использование поинтов](./tests/Unit/DeclApi/LogicTest.php)
     * [Использование поинтов в laravel 5](./tests/Unit/DeclApi/LogicTest.php)
     * [Создание документации](./tests/Unit/DeclApiDoc/MakeDocTest.php)
