@@ -18,9 +18,10 @@ class LogicTest extends TestCase
 {
     /**
      * Прооверяем логику работы поинта
+     *
      * @throws \Exception
      */
-    function testLogicMain()
+    function testLogicLaravel5Main()
     {
         $this->markTestSkipped('Пропущено. Laravel не установлен');
 
@@ -30,6 +31,36 @@ class LogicTest extends TestCase
         $requestData = Request::create('', 'POST', $dataRaw, ['cookiesTest' => '1'], [], [], $json);
         $requestData->headers->set('headerTest', '1');
         $request = new TestedRequest(Laravel5Point::requestToArray($requestData));
+
+        $next     = new TestedPoint();
+        $response = $next->handler($request);
+        $errors   = $response->validator()->errors();
+
+        $this->assertCount(0, $errors);
+    }
+
+    /**
+     * Прооверяем логику работы поинта
+     *
+     * @throws \Exception
+     */
+    function testLogicMain()
+    {
+        // пример логики работы миддлвара
+        $dataRaw = ['test' => ['test' => '1', 'testArray' => ['0', '1', '2']]];
+        $request = new TestedRequest(
+            [
+                'header'    => [
+                    'headerTest' => '1'
+                ],
+                'cookie'    => [
+                    'cookiesTest' => '1'
+                ],
+                'json'      => $dataRaw,
+                'parameter' => []
+            ]
+        );
+        $json    = json_encode($dataRaw);
 
         $next     = new TestedPoint();
         $response = $next->handler($request);
