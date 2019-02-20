@@ -158,7 +158,7 @@ class ExampleResponse extends ObjectClass
 
 use DeclApi\Core\PointL5Bridge;
 
-class ExamplePoint extends PointL5Bridge
+class ExamplePoint extends Laravel5Point
 {
 
 }
