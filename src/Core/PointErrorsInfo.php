@@ -1,0 +1,68 @@
+<?php namespace DeclApi\Core;
+
+/**
+ * Список возможных ошибок поинта.
+ * Другие варианты стабильно будут отдавать 500 ошибку.
+ * Class Point
+ *
+ * @package DeclApi\Core
+ */
+final class PointErrorsInfo
+{
+    /**
+     * @var PointErrorItem[] $data
+     */
+    protected $data = [];
+
+    /**
+     * Добавить ошибку.
+     * Все поля важны
+     *
+     * @param     string $key              ключ по нему определяется уникализация ошибки и получаются данные
+     * @param     string $docDescription   описание для документации
+     * @param     string $errorTitle       заголовок ошибки в ответе
+     * @param     string $errorDescription текст ошибки в ответе
+     * @param int        $httpCode         http код ответа
+     *
+     * @return PointErrorsInfo
+     * @throws
+     */
+    public function addError($key, $docDescription, $errorTitle, $errorDescription, $httpCode = 500): PointErrorItem
+    {
+        if (isset($this->data[$key])) {
+            throw new \Exception('Добавить ошибку не удается. Такой ключ ошибки уже сущестует');
+        }
+
+        return $this->data[$key] = (new PointErrorItem)
+            ->setKey($key)
+            ->setDocDescription($docDescription)
+            ->setErrorTitle($errorTitle)
+            ->setErrorDescription($errorDescription)
+            ->setHttpCode($httpCode);
+    }
+
+    public function getError($key): ?PointErrorItem
+    {
+        return $this->data[$key] ?? null;
+    }
+
+    /**
+     * @return PointErrorItem[]
+     */
+    public function getData(): array
+    {
+        return $this->data;
+    }
+
+    public function toArray(): array
+    {
+        $data = [];
+
+        foreach ($this->getData() as $key => $value) {
+            $data[$key] = $value->toArray();
+        }
+
+        return $data;
+    }
+
+}
