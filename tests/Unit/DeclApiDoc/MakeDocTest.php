@@ -16,7 +16,7 @@ class MakeDocTest extends TestCase
     /**
      * @throws \Exception
      */
-    protected function setUp():void
+    protected function setUp()/*TODO downgrade - :void*/
     {
         parent::setUp();
 
