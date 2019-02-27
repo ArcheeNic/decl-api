@@ -3,6 +3,7 @@
 use DeclApi\Core\DeclApiException;
 use DeclApi\Core\ObjectClass;
 use DeclApi\Core\Point;
+use DeclApi\Documentor\ItemPoint;
 
 /**
  * Мост Pointа для Laravel 5.4+
@@ -38,9 +39,8 @@ abstract class Laravel5Point extends Point implements BridgeContract
         // пример логики работы мидлвара
         // определение типа реквеста
         try {
-            $reflection        = (new \ReflectionClass($this))->getMethod('handler');
-            $requestParameters = $reflection->getParameters();
-            $requestType       = $requestParameters[0]->getType()->getName();
+            $pointInfo = new ItemPoint(__CLASS__);
+            $requestType = $pointInfo->request;
 
             $requestEnd = new $requestType(static::requestToArray($illuminateRequest));
             $response   = $this->handler($requestEnd);
