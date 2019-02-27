@@ -39,17 +39,18 @@ abstract class Laravel5Point extends Point implements BridgeContract
         // пример логики работы мидлвара
         // определение типа реквеста
         try {
-            $pointInfo = new ItemPoint(__CLASS__);
+            $pointInfo = new ItemPoint(get_class($this));
             $requestType = $pointInfo->request;
 
             $requestEnd = new $requestType(static::requestToArray($illuminateRequest));
             $response   = $this->handler($requestEnd);
 
+            $validator = $response->validator();
             if ($response instanceof ObjectClass) {
-                $response->validator()->validate();
+                $response->validator()->fails();
             }
         } catch (DeclApiException $exception) {
-            abort($exception->getResponseCode(), $exception->getMessage(), $exception->getHeaders());
+            $this->abort($exception->getResponseCode(), $exception->getMessage(), $exception->getHeaders());
         }
         return $this->illuminateResponse->setContent($response->jsonSerialize());
     }
