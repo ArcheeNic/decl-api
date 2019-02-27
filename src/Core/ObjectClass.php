@@ -97,8 +97,8 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
             /**
              * @var RuleItem $value
              */
-            if (!isset($this->dataRaw[$item]) && $default = $value->getDefault()) {
-                $this->dataRaw[$item] = $default;
+            if (!isset($this->dataRaw[$item]) && $value->isDefault()) {
+                $this->dataRaw[$item] = $value->getDefault();
             }
         }
     }

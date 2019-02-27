@@ -41,6 +41,10 @@ class RuleItem
      */
     protected $default = null;
     /**
+     * @var null установлено ли значение по умолчанию (на случай null)
+     */
+    protected $isDefault = false;
+    /**
      * @var null Поле для теста или примера
      */
     protected $testValue = null;
@@ -205,6 +209,14 @@ class RuleItem
     }
 
     /**
+     * @return null
+     */
+    public function isDefault()
+    {
+        return $this->isDefault;
+    }
+
+    /**
      * @return bool
      * @throws \Exception
      */
@@ -222,6 +234,7 @@ class RuleItem
      */
     public function setDefault($default)
     {
+        $this->isDefault = true;
         $this->default = $default;
         return $this;
     }
