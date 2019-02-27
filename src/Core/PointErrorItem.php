@@ -36,7 +36,7 @@ final class PointErrorItem
     /**
      * @return string|null
      */
-    public function getKey(): ?string
+    public function getKey()/*TODO downgrade - : ?string*/
     {
         return $this->key;
     }
@@ -46,7 +46,7 @@ final class PointErrorItem
      *
      * @return PointErrorItem
      */
-    public function setKey(?string $key): PointErrorItem
+    public function setKey(/*TODO downgrade - ?string*/ $key): PointErrorItem
     {
         $this->key = $key;
         return $this;

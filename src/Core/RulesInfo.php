@@ -102,7 +102,7 @@ class RulesInfo
      *
      * @return RuleItem|null
      */
-    public function get($key): ?RuleItem
+    public function get($key)/*TODO downgrade - : ?RuleItem*/
     {
         return $this->data[$key] ?? null;
     }

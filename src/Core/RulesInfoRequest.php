@@ -136,7 +136,7 @@ class RulesInfoRequest
      * @return RuleItem|null
      * @throws \Exception
      */
-    public function get($target, $value): ?RuleItem
+    public function get($target, $value)/*TODO downgrade - : ?RuleItem*/
     {
         $this->checkTarget($target);
         return $this->data[$target][$value] ?? null;

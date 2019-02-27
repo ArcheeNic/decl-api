@@ -73,7 +73,7 @@ class MakeDoc extends FileSystem
      *
      * @throws \Exception
      */
-    public function generateAndSave(array $data, array $configs = []): void
+    public function generateAndSave(array $data, array $configs = [])/*TODO downgrade - : void*/
     {
         $dataGenerated = $this->generate($data, $configs);
         foreach ($dataGenerated as $key=>$value) {

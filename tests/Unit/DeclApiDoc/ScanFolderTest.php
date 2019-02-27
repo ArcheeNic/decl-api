@@ -14,6 +14,6 @@ class ScanFolderTest extends TestCase
     {
         $path = __DIR__.'/../DeclApi';
         $classesInfo = (new ScanFiles($path))->getInfo();
-        $this->assertIsArray($classesInfo);
+        $this->assertTrue(is_array($classesInfo));
     }
 }

@@ -49,7 +49,7 @@ class MakeDocTest extends TestCase
 
         $makeDoc = new MakeDoc($this->configRoot);
         $configs = $makeDoc->generate($this->data);
-        $this->assertIsArray($configs);
+        $this->assertTrue(is_array($configs));
     }
 
     /**

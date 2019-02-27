@@ -99,7 +99,7 @@ abstract class Request extends ObjectClass
      * @return \Illuminate\Contracts\Validation\Validator
      * @throws \Exception
      */
-    public function validator(?string $target = null): \Illuminate\Contracts\Validation\Validator
+    public function validator(/*TODO downgrade - ?string*/ $target = null): \Illuminate\Contracts\Validation\Validator
     {
         if ($target) {
             return (new ValidatorFactory())->make($this->dataRaw[$target]??[], $this->rulesInfo()->rulesGroup($target));

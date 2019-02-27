@@ -41,7 +41,7 @@ final class PointErrorsInfo
             ->setHttpCode($httpCode);
     }
 
-    public function getError($key): ?PointErrorItem
+    public function getError($key)/*TODO downgrade - : ?PointErrorItem*/
     {
         return $this->data[$key] ?? null;
     }
