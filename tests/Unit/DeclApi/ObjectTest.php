@@ -5,6 +5,7 @@ namespace Tests\Unit\DeclApi;
 use Tests\TestCase;
 use Tests\Unit\DeclApi\TestedBlank\TestedObjectChildClass;
 use Tests\Unit\DeclApi\TestedBlank\TestedObjectClass;
+use Tests\Unit\DeclApi\TestedBlank\TestedObjectDefaults;
 
 class ObjectTest extends TestCase
 {
@@ -62,5 +63,14 @@ class ObjectTest extends TestCase
 
         // получение json
         $this->assertEquals(json_encode($raw), json_encode($object));
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function testDefaults()
+    {
+        $object = new TestedObjectDefaults();
+        $this->assertEquals(['stringArray'=>[]],$object->toArray());
     }
 }
