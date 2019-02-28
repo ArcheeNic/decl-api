@@ -39,7 +39,7 @@ abstract class Laravel5Point extends Point implements BridgeContract
         // пример логики работы мидлвара
         // определение типа реквеста
         try {
-            $pointInfo = new ItemPoint(get_class($this));
+            $pointInfo   = new ItemPoint(get_class($this));
             $requestType = $pointInfo->request;
 
             $requestEnd = new $requestType(static::requestToArray($illuminateRequest));
@@ -47,17 +47,25 @@ abstract class Laravel5Point extends Point implements BridgeContract
 
             $validator = $response->validator();
             if ($response instanceof ObjectClass) {
-                $response->validator()->fails();
+                if ($validator->fails()) {
+                    return $this->abort(400, $validator->messages());
+                }
             }
         } catch (DeclApiException $exception) {
-            $this->abort($exception->getResponseCode(), $exception->getMessage(), $exception->getHeaders());
+            return $this->abort($exception->getResponseCode(), $exception->getMessage(), $exception->getHeaders());
+        } catch (\Exception $exception) {
+            if(env('APP_DEBUG')){
+                return $this->abort(500, ['message' => $exception->getMessage(), 'trace' =>explode("\n",$exception->getTraceAsString())]);
+            }
+            return $this->abort(500, ['message' => 'Произошла системная ошибка. Обратитесь к разарботчикам']);
         }
         return $this->illuminateResponse->setContent($response->jsonSerialize());
     }
 
-    public function abort($code = 500, $message = '', $headers = [])
+    public function abort($code = 500, $message, $headers = [])
     {
-        $response = $this->illuminateResponse->setStatusCode($code);
+        $response = $this->illuminateResponse;
+        $response->setStatusCode($code);
         if (!empty($message)) {
             $response->setContent($message);
         }
