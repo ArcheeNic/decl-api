@@ -28,8 +28,8 @@ abstract class Request extends ObjectClass
                 /**
                  * @var RuleItem $value
                  */
-                if (!isset($this->dataRaw[$target][$key]) && $default = $value->getDefault()) {
-                    $this->dataRaw[$target][$key] = $default;
+                if (!isset($this->dataRaw[$target][$key]) && $value->isDefault()) {
+                    $this->dataRaw[$target][$key] = $value->getDefault();
                 }
             }
         }
@@ -99,14 +99,64 @@ abstract class Request extends ObjectClass
      * @return \Illuminate\Contracts\Validation\Validator
      * @throws \Exception
      */
-    public function validator(/*TODO downgrade - ?string*/ $target = null): \Illuminate\Contracts\Validation\Validator
-    {
+    public function validator(/*TODO downgrade - ?string*/
+        $target = null
+    ): \Illuminate\Contracts\Validation\Validator {
         if ($target) {
-            return (new ValidatorFactory())->make($this->dataRaw[$target]??[], $this->rulesInfo()->rulesGroup($target));
+            return (new ValidatorFactory())->make($this->dataRaw[$target] ?? [],
+                $this->rulesInfo()->rulesGroup($target));
         }
 
-        return (new ValidatorFactory())->make($this->dataRaw??[], $this->rulesInfo()->rules());
+        return (new ValidatorFactory())->make($this->dataRaw ?? [], $this->rulesInfo()->rules());
     }
 
+    protected function hasTargetField($target, $fieldName): bool
+    {
+        if (!isset($this->dataMutated()[$target])) {
+            return false;
+        }
+        if (!isset($this->dataMutated()[$target][$fieldName])) {
+            return false;
+        }
+        return true;
+    }
+
+    protected function getTargetField($target, $fieldName)
+    {
+        if ($this->hasTargetField($target, $fieldName)) {
+            return $this->dataMutated()[$target][$fieldName];
+        }
+        return null;
+    }
+
+    public final function hasParameterField($fieldName): bool
+    {
+        return $this->getTargetField('parameter', $fieldName);
+    }
+
+    public final function hasCookieField($fieldName): bool
+    {
+        return $this->getTargetField('cookie', $fieldName);
+    }
+
+    public final function hasHeaderField($fieldName): bool
+    {
+        return $this->getTargetField('header', $fieldName);
+    }
+
+    public final function getParameterField($fieldName)
+    {
+        return $this->getTargetField('parameter',$fieldName);
+    }
+
+    public final function getCookieField($fieldName)
+    {
+        return $this->getTargetField('cookie',$fieldName);
+    }
+
+    public final function getHeaderField($fieldName)
+    {
+        return $this->getTargetField('header',$fieldName);
+    }
 
 }
