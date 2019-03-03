@@ -28,8 +28,8 @@ abstract class Request extends ObjectClass
                 /**
                  * @var RuleItem $value
                  */
-                if (!isset($this->dataRaw[$target][$key]) && $value->isDefault()) {
-                    $this->dataRaw[$target][$key] = $value->getDefault();
+                if (!isset($this->dataRaw[$target][$key]) && $default = $value->getDefault()) {
+                    $this->dataRaw[$target][$key] = $default;
                 }
             }
         }

@@ -42,7 +42,14 @@ abstract class Laravel5Point extends Point implements BridgeContract
             $pointInfo   = new ItemPoint(get_class($this));
             $requestType = $pointInfo->request;
 
+            /**
+             * @var ObjectClass $requestEnd
+             */
             $requestEnd = new $requestType(static::requestToArray($illuminateRequest));
+            $validator = $requestEnd->validator();
+            if ($validator->fails()) {
+                return $this->abort(400, $requestEnd->messages());
+            }
             $response   = $this->handler($requestEnd);
 
             $validator = $response->validator();
