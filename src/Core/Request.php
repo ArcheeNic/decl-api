@@ -117,7 +117,6 @@ abstract class Request extends ObjectClass
         $target = null
     ): \Illuminate\Contracts\Validation\Validator {
         if ($target) {
-            $this->validateStrictRunTarget($target);
             return (new ValidatorFactory())->make($this->dataRaw[$target] ?? [],
                 $this->rulesInfo()->rulesGroup($target));
         }
