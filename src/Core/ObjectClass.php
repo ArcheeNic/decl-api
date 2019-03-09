@@ -87,6 +87,16 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
         }
     }
 
+
+    public function cleanDiffData()
+    {
+        foreach ($this->dataMutated() as $key => $value) {
+            if (!$this->rulesInfo()->get($key)) {
+                unset($this->dataMutated()[$value]);
+            }
+        }
+    }
+
     /**
      * Подготовить и установить умолчания в исходные данные для полей
      * Рекомендуется делать в самом конце  (см. конструктор)
@@ -110,11 +120,9 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
     {
         foreach ($this->dataRaw as $key => $value) {
             $rule = $this->rulesInfo()->get($key);
-            if ($rule->isArray()) {
-                $valueMutated = [];
-                foreach ($value as $subkey => $subvalue) {
-                    $valueMutated[$subkey] = $this->mutate($rule, $subvalue);
-                }
+            if (!$rule) {
+                $valueMutated = $value;
+                //     continue;
             } else {
                 $valueMutated = $this->mutate($rule, $value);
             }
@@ -129,10 +137,23 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
      * @param RuleItem $rule
      * @param          $value
      *
-     * @return int
+     * @return mixed
      */
     protected function mutate(RuleItem $rule, $value)
     {
+        if ($rule->isArray()) {
+            if(!is_array($value)) {
+                return [];
+            }
+            $valueMutated = [];
+            $subrule = clone $rule;
+            $subrule->setIsArray(false);
+            foreach ($value as $subkey => $subvalue) {
+                $valueMutated[$subkey] = $this->mutate($subrule, $subvalue);
+            }
+            return $valueMutated;
+        }
+
         if ($rule->isObject()) {
             $className = $rule->getType();
             return new $className($value);
@@ -149,6 +170,7 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
 
     /**
      * Валидация данных
+     * Перед валидатором проводится строгая системная валидация
      *
      * @return \Illuminate\Contracts\Validation\Validator
      * @throws \Exception
@@ -180,6 +202,9 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
      */
     protected function setField($name, $value)
     {
+        if($rule = $this->rulesInfo()->get($name)){
+            $value = $this->mutate($rule, $value);
+        }
         $this->dataMutated[$name] = $value;
     }
 

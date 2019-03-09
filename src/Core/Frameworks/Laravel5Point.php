@@ -1,8 +1,10 @@
 <?php namespace DeclApi\Core\Frameworks;
 
 use DeclApi\Core\DeclApiException;
+use DeclApi\Core\DiffFieldsObject;
 use DeclApi\Core\ObjectClass;
 use DeclApi\Core\Point;
+use DeclApi\Core\Request;
 use DeclApi\Documentor\ItemPoint;
 
 /**
@@ -43,30 +45,50 @@ abstract class Laravel5Point extends Point implements BridgeContract
             $requestType = $pointInfo->request;
 
             /**
-             * @var ObjectClass $requestEnd
+             * @var Request $requestEnd
              */
             $requestEnd = new $requestType(static::requestToArray($illuminateRequest));
+
+            // проверяем диффы
+            $this->requestCheckDiffErrors(DiffFieldsObject::diffRequest($requestEnd));
+            $requestEnd->cleanDiffData();
+
             $validator = $requestEnd->validator();
             if ($validator->fails()) {
-                return $this->abort(400, $requestEnd->messages());
+                return $this->abort(400, $validator->errors());
             }
-            $response   = $this->handler($requestEnd);
+            /**
+             * @var ObjectClass $response
+             */
+            $response = $this->handler($requestEnd);
 
+            $this->responseCheckDiffErrors(DiffFieldsObject::diff($response));
             $validator = $response->validator();
             if ($response instanceof ObjectClass) {
                 if ($validator->fails()) {
-                    return $this->abort(400, $validator->messages());
+                    return $this->abort(400, $validator->errors());
                 }
             }
         } catch (DeclApiException $exception) {
             return $this->abort($exception->getResponseCode(), $exception->getMessage(), $exception->getHeaders());
         } catch (\Exception $exception) {
-            if(env('APP_DEBUG')){
-                return $this->abort(500, ['message' => $exception->getMessage(), 'trace' =>explode("\n",$exception->getTraceAsString())]);
+            if (env('APP_DEBUG')) {
+                return $this->abort(500,
+                    ['message' => $exception->getMessage(), 'trace' => explode("\n", $exception->getTraceAsString())]);
             }
             return $this->abort(500, ['message' => 'Произошла системная ошибка. Обратитесь к разарботчикам']);
         }
         return $this->illuminateResponse->setContent($response->jsonSerialize());
+    }
+
+    protected function requestCheckDiffErrors($errors = [])
+    {
+        return null;
+    }
+
+    protected function responseCheckDiffErrors($errors = [])
+    {
+        return null;
     }
 
     public function abort($code = 500, $message, $headers = [])

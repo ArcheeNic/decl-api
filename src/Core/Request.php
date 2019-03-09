@@ -94,6 +94,20 @@ abstract class Request extends ObjectClass
 
 
     /**
+     * @throws \Exception
+     */
+    public function cleanDiffData()
+    {
+        foreach ($this->dataMutated() as $target => $targetData) {
+            foreach ($targetData as $targetDataKey=>$targetDataValue){
+                if (!$this->rulesInfo()->get($target,$targetDataKey)) {
+                    unset($this->dataMutated()[$target][$targetDataKey]);
+                }
+            }
+        }
+    }
+
+    /**
      * @param $target
      *
      * @return \Illuminate\Contracts\Validation\Validator
@@ -103,6 +117,7 @@ abstract class Request extends ObjectClass
         $target = null
     ): \Illuminate\Contracts\Validation\Validator {
         if ($target) {
+            $this->validateStrictRunTarget($target);
             return (new ValidatorFactory())->make($this->dataRaw[$target] ?? [],
                 $this->rulesInfo()->rulesGroup($target));
         }
