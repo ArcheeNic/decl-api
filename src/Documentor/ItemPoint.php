@@ -30,6 +30,7 @@ class ItemPoint extends ItemInfo
     {
         $classname     = $this->classname;
         $reflection    = new \ReflectionClass($classname);
+
         $handlerMethod = $reflection->getMethod('handler');
 
         $this->response = (string)$handlerMethod->getReturnType();

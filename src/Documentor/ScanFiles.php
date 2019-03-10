@@ -39,8 +39,8 @@ class ScanFiles extends \DeclApi\Documentor\FileSystem
      */
     public function __construct($root)
     {
-        $path       = $this->absolutePath($root);
-        $this->root = $path;
+        $path             = $this->absolutePath($root);
+        $this->root       = $path;
         $this->fileSystem = $this->newLocalFileSystem($path);
     }
 
@@ -70,6 +70,9 @@ class ScanFiles extends \DeclApi\Documentor\FileSystem
                 'request' => [],
                 'object'  => [],
             ],
+            'point'     => [],
+            'request'   => [],
+            'object'    => []
         ];
 
         $result['available'] = $array;
@@ -98,6 +101,7 @@ class ScanFiles extends \DeclApi\Documentor\FileSystem
      * @param $array
      *
      * @return array
+     * @throws \ReflectionException
      */
     private final function groupFilesByType($array)
     {
@@ -114,12 +118,25 @@ class ScanFiles extends \DeclApi\Documentor\FileSystem
             if (preg_match('!class (.*?) .*?$!mui', $content, $classname)) {
                 $classname = $classname[1];
             }
+
+            if (!$classname || !$namespace) {
+                continue;
+            }
+
             $fullClassname = $namespace.'\\'.$classname;
+            $reflectionClass = new \ReflectionClass($fullClassname);
+            if($reflectionClass->isAbstract()){
+                continue;
+            }
+
             if (is_subclass_of($fullClassname, Request::class)) {
                 $request[] = $fullClassname;
             } elseif (is_subclass_of($fullClassname, ObjectClass::class)) {
                 $object[] = $fullClassname;
             } elseif (is_subclass_of($fullClassname, Point::class)) {
+                if(!method_exists($fullClassname, 'handler')){
+                    continue;
+                }
                 $point[] = $fullClassname;
             }
         }

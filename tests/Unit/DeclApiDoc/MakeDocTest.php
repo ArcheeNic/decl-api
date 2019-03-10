@@ -46,7 +46,6 @@ class MakeDocTest extends TestCase
      */
     public function testGenerate()
     {
-
         $makeDoc = new MakeDoc($this->configRoot);
         $configs = $makeDoc->generate($this->data);
         $this->assertTrue(is_array($configs));

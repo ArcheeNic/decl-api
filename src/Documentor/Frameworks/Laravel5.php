@@ -53,6 +53,7 @@ class Laravel5
     {
         $scanFiles           = new ScanFiles($this->scanRoot);
         $scanFiles           = $scanFiles->getInfo();
+
         $scanFiles['route'] = $this->getRoutes($scanFiles['point']);
         $this->scanFiles = $scanFiles;
     }
@@ -64,8 +65,6 @@ class Laravel5
      */
     protected function getRoutes(array $points)
     {
-        Route::get('declApi/test', TestedPoint::class)->name('declApi.test');
-
         $routes = Route::getRoutes();
 
         $actionPoints = [];

@@ -77,14 +77,17 @@ class MakeDoc extends FileSystem
     {
         $dataGenerated = $this->generate($data, $configs);
         foreach ($dataGenerated as $key=>$value) {
-            $this->save($data);
+            $this->save($value);
         }
     }
 
     public function save($data){
         $filePath = $data['documentor']['savePath'];
         $saveData = $this->clearGenereatedData($data);
-        file_put_contents($filePath, json_encode($saveData));
+        $dir = dirname($data['documentor']['savePath']);
+        if(!mkdir($dir)&&!is_dir($dir)){
+            file_put_contents($filePath, json_encode($saveData));
+        }
     }
 
     /**
