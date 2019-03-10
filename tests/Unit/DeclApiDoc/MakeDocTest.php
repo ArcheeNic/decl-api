@@ -12,7 +12,6 @@ class MakeDocTest extends TestCase
     protected $configRoot;
 
 
-
     /**
      * @throws \Exception
      */

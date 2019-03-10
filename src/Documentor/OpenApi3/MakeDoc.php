@@ -85,9 +85,10 @@ class MakeDoc extends FileSystem
         $filePath = $data['documentor']['savePath'];
         $saveData = $this->clearGenereatedData($data);
         $dir = dirname($data['documentor']['savePath']);
-        if(!mkdir($dir)&&!is_dir($dir)){
-            file_put_contents($filePath, json_encode($saveData));
+        if(!file_exists($dir) && !mkdir($dir) && !is_dir($dir)){
+            return null;
         }
+        file_put_contents($filePath, json_encode($saveData));
     }
 
     /**
