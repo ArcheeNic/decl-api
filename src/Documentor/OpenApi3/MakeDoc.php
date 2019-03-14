@@ -1,5 +1,6 @@
 <?php namespace DeclApi\Documentor\OpenApi3;
 
+use DeclApi\Core\DeclApiCoreException;
 use DeclApi\Core\ObjectClass;
 use DeclApi\Core\Point;
 use DeclApi\Core\Request;
@@ -121,6 +122,22 @@ class MakeDoc extends FileSystem
         foreach ($data['route'][$configKey] as $routePoint) {
             $method    = mb_strtolower($routePoint['method']);
             $action    = '/'.$routePoint['action'];
+
+            $replaceUri = [];
+            if(isset($configData['documentor']['replaceUri'])){
+                $replaceUri = $configData['documentor']['replaceUri'];
+                if(!is_array($replaceUri)){
+                    throw new DeclApiCoreException('Поле replaceUri в шаблоне документации должно быть массивом');
+                }
+            }
+
+            foreach ($replaceUri as $value){
+                if(!is_array($value) || count($value)!=2){
+                    throw new DeclApiCoreException('Дочернее свойство поля replaceUri в шаблоне документации должно быть массивом и должно содержать 2 значения');
+                }
+                $action = preg_replace($value[0],$value[1],$action);
+            }
+
             $className = $routePoint['class'];
             $class     = new $className();
 
