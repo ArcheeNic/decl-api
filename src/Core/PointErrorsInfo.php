@@ -65,4 +65,17 @@ final class PointErrorsInfo
         return $data;
     }
 
+    public function exception($key, $errorTitle = null, $errorDescription = null)
+    {
+        if ($error = $this->getError($key)) {
+            throw new DeclApiCoreException('Ошибки с кодом {'.$key.'} не объявлено');
+        }
+
+        throw new DeclApiException(
+            ($errorTitle)?:$error->getErrorTitle(),
+            ($errorDescription)?:$error->getErrorDescription(),
+            $error->getHttpCode()
+        );
+    }
+
 }

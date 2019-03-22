@@ -47,7 +47,7 @@ class RuleItem
     /**
      * @var null Поле для теста или примера
      */
-    protected $testValue = null;
+    protected $exampleValue = null;
     /**
      * @var bool является поле массивом
      */
@@ -244,21 +244,21 @@ class RuleItem
      *
      * @return null
      */
-    public function getTestValue()
+    public function getExampleValue()
     {
-        return $this->testValue;
+        return $this->exampleValue;
     }
 
     /**
      * Установить значение для теста или примера
      *
-     * @param null $testValue
+     * @param null $exampleValue
      *
      * @return RuleItem
      */
-    public function setTestValue($testValue)
+    public function setExampleValue($exampleValue)
     {
-        $this->testValue = $testValue;
+        $this->exampleValue = $exampleValue;
         return $this;
     }
 

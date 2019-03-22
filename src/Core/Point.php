@@ -11,6 +11,11 @@
  */
 abstract class Point
 {
+    /**
+     * @var ExampleCallPoint
+     */
+    protected $exampleCallCode;
+
     static public $docFile = 'main';
     /**
      * @var array $docVersion Version. Default equivalent - 0.0.1
@@ -23,11 +28,29 @@ abstract class Point
     protected $errorsInfo;
 
     /**
+     * Определение ошибок
      * @throws \Exception
      */
-    protected function initErrors()
-    {
+    abstract protected function initErrors();
 
+    /**
+     * Определение примеров
+     * @throws \DeclApiCoreException
+     */
+    abstract protected function initExampleCallCode();
+
+    /**
+     * Примеры вызовов api
+     * @return ExampleCallPoint
+     */
+    public function exampleCallCode()
+    {
+        if ($this->exampleCallCode === null) {
+            $this->exampleCallCode = new ExampleCallPoint();
+            $this->initExampleCallCode();
+        }
+
+        return $this->exampleCallCode;
     }
 
     /**
@@ -51,4 +74,5 @@ abstract class Point
     {
         $this->initErrors();
     }
+
 }
