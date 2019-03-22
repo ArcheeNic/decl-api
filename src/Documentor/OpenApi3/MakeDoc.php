@@ -77,16 +77,17 @@ class MakeDoc extends FileSystem
     public function generateAndSave(array $data, array $configs = [])/*TODO downgrade - : void*/
     {
         $dataGenerated = $this->generate($data, $configs);
-        foreach ($dataGenerated as $key=>$value) {
+        foreach ($dataGenerated as $key => $value) {
             $this->save($value);
         }
     }
 
-    public function save($data){
+    public function save($data)
+    {
         $filePath = $data['documentor']['savePath'];
         $saveData = $this->clearGenereatedData($data);
-        $dir = dirname($data['documentor']['savePath']);
-        if(!file_exists($dir) && !mkdir($dir) && !is_dir($dir)){
+        $dir      = dirname($data['documentor']['savePath']);
+        if (!file_exists($dir) && !mkdir($dir) && !is_dir($dir)) {
             return null;
         }
         file_put_contents($filePath, json_encode($saveData));
@@ -100,7 +101,9 @@ class MakeDoc extends FileSystem
     public function clearGenereatedData(array $data): array
     {
         unset($data['documentor']);
-        unset($data['tags']);
+        if (empty($data['tags'])) {
+            unset($data['tags']);
+        }
         return $data;
     }
 
@@ -120,22 +123,22 @@ class MakeDoc extends FileSystem
         $configData = $this->getConfigData($configKey);
 
         foreach ($data['route'][$configKey] as $routePoint) {
-            $method    = mb_strtolower($routePoint['method']);
-            $action    = '/'.$routePoint['action'];
+            $method = mb_strtolower($routePoint['method']);
+            $action = '/'.$routePoint['action'];
 
             $replaceUri = [];
-            if(isset($configData['documentor']['replaceUri'])){
+            if (isset($configData['documentor']['replaceUri'])) {
                 $replaceUri = $configData['documentor']['replaceUri'];
-                if(!is_array($replaceUri)){
+                if (!is_array($replaceUri)) {
                     throw new DeclApiCoreException('Поле replaceUri в шаблоне документации должно быть массивом');
                 }
             }
 
-            foreach ($replaceUri as $value){
-                if(!is_array($value) || count($value)!=2){
+            foreach ($replaceUri as $value) {
+                if (!is_array($value) || count($value) != 2) {
                     throw new DeclApiCoreException('Дочернее свойство поля replaceUri в шаблоне документации должно быть массивом и должно содержать 2 значения');
                 }
-                $action = preg_replace($value[0],$value[1],$action);
+                $action = preg_replace($value[0], $value[1], $action);
             }
 
             $className = $routePoint['class'];
@@ -143,14 +146,39 @@ class MakeDoc extends FileSystem
 
             /**
              * @var ItemPoint $itemPoint
+             * @var Point     $class
              */
-            $itemPoint = $data['point'][$configKey][$routePoint['class']];
+            $itemPoint = $data['point'][$configKey][$className];
 
             $point = [
                 'description' => implode("\n", $itemPoint->getDescription())."\n"
                                  .$this->makeResponsesDescription($class),
                 'summary'     => $itemPoint->getTitle(),
             ];
+
+            if ($itemPoint->getTag()) {
+                $point['tags'] = $itemPoint->getTag();
+            }
+
+
+            //region Примеры кода
+            $samples = [];
+
+            foreach ($class->exampleCallCode()->getData() as $key => $value) {
+                if (empty($value)) {
+                    continue;
+                }
+                $samples[] = [
+                    'lang'   => $key,
+                    'source' => $value
+                ];
+            }
+
+            if (count($samples)) {
+                $point['x-code-samples'] = $samples;
+            }
+            //endregion
+
 
             /**
              * @var ItemRequest $request
@@ -179,7 +207,7 @@ class MakeDoc extends FileSystem
              */
             $response = $data['object'][$itemPoint->response] ?? null;
 
-            $point['responses'] = ['200' => $this->makeResponseOk($response)];
+            $point['responses'] = ['200' => $this->makeResponseOk($response, $data)];
             foreach ($this->makeResponseErrors($class) as $key => $value) {
                 $point['responses'][$key] = $value;
             }
@@ -218,10 +246,9 @@ class MakeDoc extends FileSystem
      */
     protected function makeResponsesDescription(Point $point): string
     {
-        $data     = [];
-        $data[]   = '<hr/>';
-        $data[]   = '<h4>Список ошибок</h4>';
-        $data[]   = '<ul>';
+        $data = [];
+
+        //region Готовим ошибки
         $errors   = [];
         $response = $point->errorsInfo()->getData();
         foreach ($response as $key => $value) {
@@ -230,10 +257,19 @@ class MakeDoc extends FileSystem
                                                   .'</li>';
         }
         ksort($errors);
-        foreach ($errors as $error) {
-            $data[] = $error;
+
+        if (count($errors)) {
+            $data[] = '<hr/>';
+            $data[] = '<h4>Список ошибок</h4>';
+            $data[] = '<ul>';
+
+            foreach ($errors as $error) {
+                $data[] = $error;
+            }
+            $data[] = '</ul>';
         }
-        $data[] = '</ul>';
+        //endregion
+
         return implode("\n", $data);
     }
 
@@ -251,9 +287,14 @@ class MakeDoc extends FileSystem
                 'description' => '',
                 'content'     => [
                     'application/json' => [
-                        'schema' => [
-                            '$ref' => '#/components/schemas/error'
-                        ]
+                        'schema'  => [
+                            '$ref' => '#/components/schemas/error',
+                        ],
+                        'example' => [
+                            'code'        => $value->getHttpCode(),
+                            'title'       => $value->getErrorTitle(),
+                            'description' => $value->getErrorDescription(),
+                        ],
                     ]
                 ]
             ];
@@ -262,26 +303,94 @@ class MakeDoc extends FileSystem
     }
 
     /**
+     * Создать массив с данными об объекте
+     *
+     * @param RuleItem[] $responseRules
+     */
+    protected function makeObjectProperties(array $responseRules, array $data)
+    {
+
+        $json = [];
+
+        foreach ($responseRules as $responseRule) {
+            if ($responseRule->isArray()) {
+                $json[$responseRule->getKey()] = $this->makeArrayResponseProperty($responseRule, $data);
+            } else {
+                $json[$responseRule->getKey()] = $this->makeOneResponseProperty($responseRule, $data);
+
+            }
+        }
+
+        return $json;
+    }
+
+    /**
+     * Создать простой объект
+     *
+     * @param RuleItem $responseRule
+     */
+    public function makeOneResponseProperty(RuleItem $responseRule, array $data)
+    {
+        $object = [
+            'type'        => 'string',
+            'description' => $responseRule->getTitle()
+        ];
+
+        if ($responseRule->getExampleValue() !== null) {
+            $object['example'] = $responseRule->getExampleValue();
+        } elseif ($responseRule->getDefault() !== null) {
+            $object['example'] = $responseRule->getDefault();
+        }
+
+        return $object;
+    }
+
+    /**
+     * Создать параметр - массив
+     *
+     * @param  RuleItem $responseRule
+     */
+    public function makeArrayResponseProperty(RuleItem $responseRule, array $data)
+    {
+        $object = [
+            'type'        => 'array',
+            'description' => $responseRule->getTitle()
+        ];
+
+        if ($responseRule->isObject()) {
+            /**
+             * @var \DeclApi\Documentor\ItemObject $itemObject
+             */
+            $itemObject = $data['object'][$responseRule->getType()];
+            $rules = $itemObject->getRules()->getData();
+            $object['items'] = [
+                'type'       => 'object',
+                'properties' => $this->makeObjectProperties($rules, $data)
+                // TODO: Нужно сделать как-то дочерние объекты
+                //                'properties' => $this->makeOneResponseProperty($responseRule->getType())
+            ];
+        } else {
+            $object['items'] = [
+                'type' => 'string',
+                // TODO: Нужно сделать как-то дочерние объекты
+                //                'properties' => $this->makeOneResponseProperty($responseRule->getType())
+            ];
+        }
+
+        return $object;
+    }
+
+    /**
      * @param ItemObject $response
      *
      * @return array
      */
-    protected function makeResponseOk(ItemObject $response): array
+    protected function makeResponseOk(ItemObject $response, array $data): array
     {
 
         $responseRules = $response->getRules()->getData();
 
-        $json = [];
-
-        /**
-         * @var RuleItem $responseRule
-         */
-        foreach ($responseRules as $responseRule) {
-            $json[$responseRule->getKey()] = [
-                'type'        => 'string',
-                'description' => $responseRule->getDescription()
-            ];
-        }
+        $json = $this->makeObjectProperties($responseRules, $data);
 
         return [
             'description' => '',

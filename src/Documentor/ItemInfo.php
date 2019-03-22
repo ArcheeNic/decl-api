@@ -5,14 +5,19 @@ use DeclApi\Core\ObjectClass;
 abstract class ItemInfo
 {
     /**
-     * @var string $title название
+     * @var string|null $title название
      */
     protected $title;
 
     /**
-     * @var array $description описание
+     * @var array|null $description описание
      */
     protected $description;
+
+    /**
+     * @var array|null
+     */
+    protected $tag;
 
     /**
      * @var string $classname Имя класса
@@ -30,6 +35,7 @@ abstract class ItemInfo
     {
         $this->classname = $classname;
         $this->getInfo();
+
         $this->analyse();
     }
 
@@ -50,6 +56,15 @@ abstract class ItemInfo
     }
 
     /**
+     * @return array|null
+     */
+    public function getTag()
+    {
+        return $this->tag;
+    }
+
+
+    /**
      * @return string
      */
     public function getClassname(): string
@@ -68,6 +83,7 @@ abstract class ItemInfo
         $doc               = $this->parseDoc($docRaw);
         $this->title       = $doc['title'];
         $this->description = $doc['description'];
+        $this->tag        = (isset($doc['tags']) && isset($doc['tags']['tag'])) ? $doc['tags']['tag'] : [];
     }
 
     protected function parseDoc($content)
@@ -123,4 +139,6 @@ abstract class ItemInfo
     }
 
     abstract function analyse();
+
+
 }
