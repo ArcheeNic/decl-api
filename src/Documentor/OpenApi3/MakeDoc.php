@@ -315,9 +315,19 @@ class MakeDoc extends FileSystem
         foreach ($responseRules as $responseRule) {
             if ($responseRule->isArray()) {
                 $json[$responseRule->getKey()] = $this->makeArrayResponseProperty($responseRule, $data);
-            } else {
+            } elseif($responseRule->isObject()) {
+                /**
+                 * @var \DeclApi\Documentor\ItemObject $itemObject
+                 */
+                $itemObject = $data['object'][$responseRule->getType()];
+                $rules = $itemObject->getRules()->getData();
+                $json[$responseRule->getKey()] = [
+                    'type'        => 'object',
+                    'description' => $responseRule->getTitle(),
+                    'properties'  => $this->makeObjectProperties($rules, $data)
+                ];
+            }else{
                 $json[$responseRule->getKey()] = $this->makeOneResponseProperty($responseRule, $data);
-
             }
         }
 
