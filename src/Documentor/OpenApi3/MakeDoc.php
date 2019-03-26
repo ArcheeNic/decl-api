@@ -323,7 +323,7 @@ class MakeDoc extends FileSystem
                 $rules                         = $itemObject->getRules()->getData();
                 $json[$responseRule->getKey()] = [
                     'type'        => 'object',
-                    'description' => $responseRule->getTitle(),
+                    'description' => $this->makeDescription($responseRule),
                     'properties'  => $this->makeObjectProperties($rules, $data)
                 ];
             } else {
@@ -343,7 +343,7 @@ class MakeDoc extends FileSystem
     {
         $object = [
             'type'        => Property::getFormatFromValidator($responseRule->getType()),
-            'description' => $responseRule->getTitle()
+            'description' => $this->makeDescription($responseRule)
         ];
 
         if (($example = $this->getExample($responseRule)) !== null) {
@@ -372,7 +372,7 @@ class MakeDoc extends FileSystem
     {
         $object = [
             'type'        => 'array',
-            'description' => $responseRule->getTitle()
+            'description' => $this->makeDescription($responseRule)
         ];
 
         if ($responseRule->getType() === 'object') {
@@ -402,6 +402,22 @@ class MakeDoc extends FileSystem
         }
 
         return $object;
+    }
+
+    /**
+     * Генерация описания
+     * @param RuleItem $responseRule
+     *
+     * @return string
+     */
+    public function makeDescription(RuleItem $responseRule){
+        if ($responseRule->getDescription()) {
+            $description = '<div>'.$responseRule->getTitle().'</div>';
+            $description .= '<div><small><i>'.$responseRule->getDescription().'</i></small></div>';
+        } else {
+            $description = $responseRule->getTitle();
+        }
+        return $description;
     }
 
     /**
@@ -474,7 +490,7 @@ class MakeDoc extends FileSystem
     {
         $data = [
             'name'        => $ruleItem->getKey(),
-            'description' => $ruleItem->getTitle().'. '.$ruleItem->getDescription(),
+            'description' => $this->makeDescription($ruleItem),
             'schema'      => [
                 'type' => Property::getFormatFromValidator($ruleItem->getType())
             ],
