@@ -172,13 +172,17 @@ class RuleItem
     {
         if (is_array($this->attributes)) {
             if ($this->isObject()) {
-                return $this->attributes;
+                $attributes = $this->attributes;
             } else {
-                return array_merge([$this->type], $this->attributes);
+                $attributes = array_merge([$this->type], $this->attributes);
             }
         } else {
             throw new DeclApiException('Некорректное определение свойства', 'Должен быть массив или строка');
         }
+        // это только для специальных типов, таких как массив или объект
+        $attributes = array_diff($attributes,['array','object']);
+
+        return $attributes;
     }
 
     /**

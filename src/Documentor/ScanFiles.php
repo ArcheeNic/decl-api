@@ -3,14 +3,7 @@
 use DeclApi\Core\ObjectClass;
 use DeclApi\Core\Point;
 use DeclApi\Core\Request;
-use League\Flysystem\Adapter\AbstractAdapter;
-use League\Flysystem\Adapter\Local;
 use League\Flysystem\AdapterInterface;
-use League\Flysystem\Config;
-use League\Flysystem\Filesystem;
-use League\Flysystem\Plugin\ListFiles;
-use Tests\Unit\DeclApi\TestedBlank\TestedObjectClass;
-use Tests\Unit\DeclApi\TestedBlank\TestedPoint;
 
 /**
  * Отсканировать папку и собрать только те файлы, коорые нам нужны для документации

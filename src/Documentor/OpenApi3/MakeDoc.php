@@ -315,18 +315,18 @@ class MakeDoc extends FileSystem
         foreach ($responseRules as $responseRule) {
             if ($responseRule->isArray()) {
                 $json[$responseRule->getKey()] = $this->makeArrayResponseProperty($responseRule, $data);
-            } elseif($responseRule->isObject()) {
+            } elseif ($responseRule->isObject()) {
                 /**
                  * @var \DeclApi\Documentor\ItemObject $itemObject
                  */
-                $itemObject = $data['object'][$responseRule->getType()];
-                $rules = $itemObject->getRules()->getData();
+                $itemObject                    = $data['object'][$responseRule->getType()];
+                $rules                         = $itemObject->getRules()->getData();
                 $json[$responseRule->getKey()] = [
                     'type'        => 'object',
                     'description' => $responseRule->getTitle(),
                     'properties'  => $this->makeObjectProperties($rules, $data)
                 ];
-            }else{
+            } else {
                 $json[$responseRule->getKey()] = $this->makeOneResponseProperty($responseRule, $data);
             }
         }
@@ -342,17 +342,25 @@ class MakeDoc extends FileSystem
     public function makeOneResponseProperty(RuleItem $responseRule, array $data)
     {
         $object = [
-            'type'        => 'string',
+            'type'        => Property::getFormatFromValidator($responseRule->getType()),
             'description' => $responseRule->getTitle()
         ];
 
-        if ($responseRule->getExampleValue() !== null) {
-            $object['example'] = $responseRule->getExampleValue();
-        } elseif ($responseRule->getDefault() !== null) {
-            $object['example'] = $responseRule->getDefault();
+        if (($example = $this->getExample($responseRule)) !== null) {
+            $object['example'] = $example;
         }
 
         return $object;
+    }
+
+    public function getExample(RuleItem $responseRule)
+    {
+        if ($responseRule->getExampleValue() !== null) {
+            return $responseRule->getExampleValue();
+        } elseif ($responseRule->getDefault() !== null) {
+            return $responseRule->getDefault();
+        }
+        return null;
     }
 
     /**
@@ -367,12 +375,18 @@ class MakeDoc extends FileSystem
             'description' => $responseRule->getTitle()
         ];
 
-        if ($responseRule->isObject()) {
+        if ($responseRule->getType() === 'object') {
+            $object['items'] = "{}";
+            if (($example = $this->getExample($responseRule)) !== null) {
+                $object['example'] = $example;
+            }
+
+        } elseif ($responseRule->isObject()) {
             /**
              * @var \DeclApi\Documentor\ItemObject $itemObject
              */
-            $itemObject = $data['object'][$responseRule->getType()];
-            $rules = $itemObject->getRules()->getData();
+            $itemObject      = $data['object'][$responseRule->getType()];
+            $rules           = $itemObject->getRules()->getData();
             $object['items'] = [
                 'type'       => 'object',
                 'properties' => $this->makeObjectProperties($rules, $data)
@@ -381,7 +395,7 @@ class MakeDoc extends FileSystem
             ];
         } else {
             $object['items'] = [
-                'type' => 'string',
+                'type' => Property::getFormatFromValidator($responseRule->getType()),
                 // TODO: Нужно сделать как-то дочерние объекты
                 //                'properties' => $this->makeOneResponseProperty($responseRule->getType())
             ];
@@ -462,7 +476,7 @@ class MakeDoc extends FileSystem
             'name'        => $ruleItem->getKey(),
             'description' => $ruleItem->getTitle().'. '.$ruleItem->getDescription(),
             'schema'      => [
-                'type' => 'string'
+                'type' => Property::getFormatFromValidator($ruleItem->getType())
             ],
         ];
         if ($ruleItem->getEnum()) {

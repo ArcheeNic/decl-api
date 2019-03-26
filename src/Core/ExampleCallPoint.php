@@ -1,6 +1,5 @@
 <?php namespace DeclApi\Core;
 
-use Couchbase\Exception;
 
 class ExampleCallPoint
 {

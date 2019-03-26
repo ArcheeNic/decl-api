@@ -2,8 +2,6 @@
 
 class Property
 {
-    protected     $type;
-    protected     $format;
     public static $formatAndTypeMap
         = [
             'int32'     => 'integer',
@@ -19,18 +17,23 @@ class Property
             'password'  => 'string',
         ];
 
+    public static $validatorToFormat
+        = [
+            'integer' => 'int64',
+            'float'   => 'float',
+            'string'  => 'string',
+            'boolean' => 'boolean',
+        ];
+
     /**
-     * Property constructor.
-     *
-     * @param $format
-     *
-     * @throws \Exception
+     * Получить на основе типа валидатора - формат поля по спецификации OpenApi 3
      */
-    public function __construct($format)
+    public static function getFormatFromValidator($type)
     {
-        $this->format = $format;
-        if(!isset(static::$formatAndTypeMap[$format])){
-            throw new \Exception('incorrect format');
+        if (isset(static::$validatorToFormat[$type])) {
+            return static::$validatorToFormat[$type];
+        } else {
+            return static::$validatorToFormat['string'];
         }
     }
 

@@ -142,11 +142,11 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
     protected function mutate(RuleItem $rule, $value)
     {
         if ($rule->isArray()) {
-            if(!is_array($value)) {
+            if (!is_array($value)) {
                 return [];
             }
             $valueMutated = [];
-            $subrule = clone $rule;
+            $subrule      = clone $rule;
             $subrule->setIsArray(false);
             foreach ($value as $subkey => $subvalue) {
                 $valueMutated[$subkey] = $this->mutate($subrule, $subvalue);
@@ -202,7 +202,7 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
      */
     protected function setField($name, $value)
     {
-        if($rule = $this->rulesInfo()->get($name)){
+        if ($rule = $this->rulesInfo()->get($name)) {
             $value = $this->mutate($rule, $value);
         }
         $this->dataMutated[$name] = $value;
@@ -226,6 +226,13 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
         foreach ($array as $key => $value) {
             if ($value instanceof ObjectClass) {
                 $array[$key] = $value->toArray();
+            }
+            if (is_array($value)) {
+                foreach ($value as $subkey => $subvalue) {
+                    if ($subvalue instanceof ObjectClass) {
+                        $array[$key][$subkey] = $subvalue->toArray();
+                    }
+                }
             }
         }
         return $array;

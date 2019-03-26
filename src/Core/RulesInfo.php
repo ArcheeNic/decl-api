@@ -30,7 +30,6 @@ class RulesInfo
              * @var $value RuleItem
              */
             if ($value->isArray()) {
-                $rules[$key][] = 'array';
 
                 if (in_array('required', $value->getAttributes())) {
                     $rules[$key][] = 'required';
@@ -52,6 +51,9 @@ class RulesInfo
                 $rules[$key] = $value->getAttributes();
             }
         }
+
+        $rules = array_filter($rules);
+
         return $rules;
     }
 
