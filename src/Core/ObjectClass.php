@@ -51,19 +51,30 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
      */
     protected $dataMutated = [];
 
+    protected $preValidate = true;
+
     /**
      * Создание объекта.
      * Object constructor.
      *
-     * @param array $data
+     * @param array $data        данные
+     * @param bool  $preValidate предварительная валидация (происходит между записью массива и мутацией)
      *
      * @throws \Exception
      */
-    public function __construct($data = [])
+    public function __construct(array $data = [], bool $preValidate = true)
     {
+        $this->preValidate = $preValidate;
         $this->rulesInfo();
 
         $this->initRules();
+
+        if ($preValidate === true) {
+            $validator = $this->validatorCustom($data)  ;
+            if ($validator->fails()) {
+                throw new DeclApiValiadateException($this, $validator);
+            }
+        }
 
         $this->setData($data);
         $this->setDefaults();
@@ -156,7 +167,7 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
 
         if ($rule->isObject()) {
             $className = $rule->getType();
-            return new $className($value);
+            return new $className($value, $this->preValidate);
         }
 
         if ($rule->getType() === 'integer') {
@@ -178,6 +189,18 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
     public function validator(): \Illuminate\Contracts\Validation\Validator
     {
         return (new ValidatorFactory)->make($this->dataRaw, $this->rulesInfo()->rules());
+    }
+
+    /**
+     * Валидация данных
+     * Перед валидатором проводится строгая системная валидация
+     *
+     * @return \Illuminate\Contracts\Validation\Validator
+     * @throws \Exception
+     */
+    public function validatorCustom($data): \Illuminate\Contracts\Validation\Validator
+    {
+        return (new ValidatorFactory)->make($data, $this->rulesInfo()->rules());
     }
 
     //region Работа с мутированными данными (конечные данные для работы)

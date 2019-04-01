@@ -24,7 +24,7 @@ class ItemRequest extends ItemInfo
         /**
          * @var Request $class
          */
-        $class       = new $classname();
+        $class       = new $classname([],false);
         $this->rules = $class->rulesInfo();
     }
 }

@@ -47,7 +47,12 @@ class LogicTest extends TestCase
     function testLogicMain()
     {
         // пример логики работы миддлвара
-        $dataRaw = ['test' => ['test' => '1', 'testArray' => ['0', '1', '2']]];
+        $dataRaw = [
+            'test' => [
+                'test' => 1,
+                'testArray' => ['0', '1', '2']
+            ]
+        ];
         $request = new TestedRequest(
             [
                 'header'    => [
@@ -57,10 +62,11 @@ class LogicTest extends TestCase
                     'cookiesTest' => '1'
                 ],
                 'json'      => $dataRaw,
-                'parameter' => []
+                'parameter' => $dataRaw
             ]
         );
-        $json    = json_encode($dataRaw);
+
+        $this->assertFalse($request->validator()->fails(),$request->validator()->errors());
 
         $next     = new TestedPoint();
         $response = $next->handler($request);

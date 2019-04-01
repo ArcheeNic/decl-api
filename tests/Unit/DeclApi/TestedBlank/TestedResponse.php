@@ -17,6 +17,7 @@ class TestedResponse extends ObjectClass
             ->setEnum(['success', 'error'])->setDefault('success');
         $this->rulesInfo()->add('integer', 'statusCode', 'Код ответа', 'Аналог HTTP статусов ответа')
             ->setAttributes('required')->setDefault(200);
+        $this->rulesInfo()->addObject(TestedObjectClass::class,'test', 'Тест', 'Тестовое поле')->setAttributes('required');
     }
 
     /**

@@ -3,6 +3,9 @@ use DeclApi\Documentor\OpenApi3\Specification\Property;
 return [
     'documentor' => [
         'savePath' => sys_get_temp_dir().'/test_openapi_main.json',
+        'replaceSchemas' => [
+            ['!Tests\Unit\DeclApi\TestedBlank\(.*?)!'.'Blank$1']
+        ]
     ],
     'openapi'    => '3.0.1',
     'servers'    => [

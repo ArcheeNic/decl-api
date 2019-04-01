@@ -42,7 +42,7 @@ class RulesInfo
                 /**
                  * @var $class ObjectClass
                  */
-                $class      = new $className();
+                $class      = new $className([], false);
                 $rulesChild = $class->rulesInfo()->rules();
                 foreach ($rulesChild as $childKey => $childValue) {
                     $rules[$key.'.'.$childKey] = $childValue;

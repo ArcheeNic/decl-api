@@ -37,7 +37,10 @@ class TestedPoint extends Laravel5Point
      */
     public function handler(TestedRequest $request): TestedResponse
     {
-        return (new TestedResponse());
+        $body['status'] = '1';
+        $body['statusCode'] = '1';
+        $body['test'] = $request->toArray()['json'];
+        return (new TestedResponse($body));
     }
 
 }

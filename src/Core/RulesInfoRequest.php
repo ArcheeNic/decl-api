@@ -122,7 +122,7 @@ class RulesInfoRequest
         /**
          * @var ObjectClass $class
          */
-        $class = new $className;
+        $class = new $className([],false);
         $rules = $class->rulesInfo()->getData();
 
         return $this->data[$target] = $rules;
@@ -185,7 +185,7 @@ class RulesInfoRequest
                 /**
                  * @var $class Request
                  */
-                $class      = new $className();
+                $class      = new $className([],false);
                 $rulesChild = $class->rulesInfo()->rules($target);
                 foreach ($rulesChild as $childKey => $childValue) {
                     $rules[$key.'.'.$childKey] = $childValue;

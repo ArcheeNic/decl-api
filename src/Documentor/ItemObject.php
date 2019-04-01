@@ -25,7 +25,7 @@ class ItemObject extends ItemInfo
         /**
          * @var ObjectClass $class
          */
-        $class       = new $classname();
+        $class       = new $classname([],false);
         $this->rules = $class->rulesInfo();
     }
 

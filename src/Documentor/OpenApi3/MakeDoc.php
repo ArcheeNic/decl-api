@@ -122,104 +122,9 @@ class MakeDoc extends FileSystem
 
         $configData = $this->getConfigData($configKey);
 
-        foreach ($data['route'][$configKey] as $routePoint) {
-            $method = mb_strtolower($routePoint['method']);
-            $action = '/'.$routePoint['action'];
+        $configGenerator = new ConfigGenerator($configData,$data);
+        $configData = $configGenerator->generateConfig($configKey);
 
-            $replaceUri = [];
-            if (isset($configData['documentor']['replaceUri'])) {
-                $replaceUri = $configData['documentor']['replaceUri'];
-                if (!is_array($replaceUri)) {
-                    throw new DeclApiCoreException('Поле replaceUri в шаблоне документации должно быть массивом');
-                }
-            }
-
-            foreach ($replaceUri as $value) {
-                if (!is_array($value) || count($value) != 2) {
-                    throw new DeclApiCoreException('Дочернее свойство поля replaceUri в шаблоне документации должно быть массивом и должно содержать 2 значения');
-                }
-                $action = preg_replace($value[0], $value[1], $action);
-            }
-
-            $className = $routePoint['class'];
-            $class     = new $className();
-
-            /**
-             * @var ItemPoint $itemPoint
-             * @var Point     $class
-             */
-            $itemPoint = $data['point'][$configKey][$className];
-
-            $point = [
-                'description' => implode("\n", $itemPoint->getDescription())."\n"
-                                 .$this->makeResponsesDescription($class),
-                'summary'     => $itemPoint->getTitle(),
-            ];
-
-            if ($itemPoint->getTag()) {
-                $point['tags'] = $itemPoint->getTag();
-            }
-
-
-            //region Примеры кода
-            $samples = [];
-
-            foreach ($class->exampleCallCode()->getData() as $key => $value) {
-                if (empty($value)) {
-                    continue;
-                }
-                $samples[] = [
-                    'lang'   => $key,
-                    'source' => $value
-                ];
-            }
-
-            if (count($samples)) {
-                $point['x-code-samples'] = $samples;
-            }
-            //endregion
-
-
-            /**
-             * @var ItemRequest $request
-             */
-            $request      = $data['request'][$itemPoint->request] ?? null;
-            $requestRules = $request->getRules()->getData();
-
-            $parameters = [];
-
-            /**
-             * @var RuleItem $headerRule
-             */
-            foreach ($requestRules['header'] as $headerRule) {
-                $parameters[] = $this->makeParameterHeader($headerRule);
-            }
-            foreach ($requestRules['parameter'] as $headerRule) {
-                $parameters[] = $this->makeParameterQuery($headerRule);
-            }
-            foreach ($requestRules['cookie'] as $headerRule) {
-                $parameters[] = $this->makeParameterCookie($headerRule);
-            }
-            $point['parameters'] = $parameters;
-
-            /**
-             * @var ItemObject $response
-             */
-            $response = $data['object'][$itemPoint->response] ?? null;
-
-            $point['responses'] = ['200' => $this->makeResponseOk($response, $data)];
-            foreach ($this->makeResponseErrors($class) as $key => $value) {
-                $point['responses'][$key] = $value;
-            }
-
-            if (!isset($configData['paths'])) {
-                $configData['paths'] = [];
-            }
-            if (!isset($configData['paths'][$action])) {
-                $configData['paths'][$action] = [];
-            }
-            $configData['paths'][$action][$method] = $point;
-        }
         return $configData;
     }
 
@@ -283,7 +188,8 @@ class MakeDoc extends FileSystem
         $response = $point->errorsInfo()->getData();
         $data     = [];
         foreach ($response as $key => $value) {
-            $data[$value->getHttpCode()] = [
+            $httpCode        = $value->getHttpCode();
+            $data[$httpCode] = [
                 'description' => '',
                 'content'     => [
                     'application/json' => [
@@ -291,7 +197,7 @@ class MakeDoc extends FileSystem
                             '$ref' => '#/components/schemas/error',
                         ],
                         'example' => [
-                            'code'        => $value->getHttpCode(),
+                            'code'        => $httpCode,
                             'title'       => $value->getErrorTitle(),
                             'description' => $value->getErrorDescription(),
                         ],
@@ -306,6 +212,10 @@ class MakeDoc extends FileSystem
      * Создать массив с данными об объекте
      *
      * @param RuleItem[] $responseRules
+     * @param array $responseRules
+     * @param array $data
+     *
+     * @return array
      */
     protected function makeObjectProperties(array $responseRules, array $data)
     {
@@ -406,6 +316,7 @@ class MakeDoc extends FileSystem
 
     /**
      * Генерация описания
+     *
      * @param RuleItem $responseRule
      *
      * @return string
