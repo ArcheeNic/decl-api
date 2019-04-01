@@ -137,6 +137,16 @@ class ConfigGenerator
             }
             $configData['paths'][$action][$method] = $point;
         }
+
+        if(empty($configData['components'])){
+            $configData['components'] = [];
+        }
+
+        if(empty($configData['components']['schemas'])){
+            $configData['components']['schemas'] = [];
+        }
+
+        $configData['components']['schemas'] = array_replace($configData['components']['schemas'],$this->schemas);
         return $configData;
     }
 
@@ -153,6 +163,12 @@ class ConfigGenerator
         return $this->classData['object'][$className];
     }
 
+    /**
+     * @param string $className
+     *
+     * @return null
+     * @throws DeclApiCoreException
+     */
     public function addSchema(string $className)
     {
         if (isset($this->schemas[$className])) {
@@ -163,7 +179,50 @@ class ConfigGenerator
             return null;
         };
 
-        $this->schemas[$className] = $this->makeObjectProperties($class->getRules()->getData());
+
+        $this->schemas[$this->schemaName($className)] = $this->makeObjectProperties($class->getRules()->getData());
+    }
+
+    protected function refName($className){
+        return '#/components/schemas/'.$this->schemaName($className);
+    }
+
+    /**
+     * @param $className
+     *
+     * @return string|string[]|null
+     * @throws DeclApiCoreException
+     */
+    protected function schemaName($className)
+    {
+
+        $schemaName = $className;
+
+        $replaceSchemas = [];
+
+        if (
+            !empty($this->configData['documentor'])
+            && !empty($this->configData['documentor']['replaceSchemas'])
+        ) {
+            if (!is_array($this->configData['documentor']['replaceSchemas'])) {
+                throw new DeclApiCoreException('documentor.replaceSchemas is not array');
+            }
+
+            $replaceSchemas = $this->configData['documentor']['replaceSchemas'];
+        }
+
+        foreach ($replaceSchemas as $key => $replaceSchema) {
+            if (!is_array($replaceSchema)) {
+                throw new DeclApiCoreException('documentor.replaceSchemas.'.$key.' is not array');
+            }
+            if (!count($replaceSchema)) {
+                throw new DeclApiCoreException('documentor.replaceSchemas.'.$key.' the number of elements is 2');
+            }
+            $replaceSchema = array_values($replaceSchema);
+            $schemaName    = preg_replace($replaceSchema[0], $replaceSchema[1], $schemaName);
+        }
+
+        return $schemaName;
     }
 
 
@@ -332,9 +391,9 @@ class ConfigGenerator
      * Создать массив с данными об объекте
      *
      * @param RuleItem[] $responseRules
-     * @param array      $data
      *
      * @return array
+     * @throws DeclApiCoreException
      */
     protected function makeObjectProperties(array $responseRules)
     {
@@ -347,7 +406,7 @@ class ConfigGenerator
                 $this->addSchema($responseRule->getType());
 
                 $json[$responseRule->getKey()] = [
-                    '$ref' => $responseRule->getType()
+                    '$ref' => $this->refName($responseRule->getType())
                 ];
             } else {
                 $json[$responseRule->getKey()] = $this->makeOneResponseProperty($responseRule);
