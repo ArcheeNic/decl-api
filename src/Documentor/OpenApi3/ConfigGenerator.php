@@ -431,9 +431,10 @@ class ConfigGenerator
                 $this->addSchema($responseRule->getType());
 
                 $json[$responseRule->getKey()] = [
-                    'description' => $this->makeDocDescription($responseRule->getTitle(),$responseRule->getDescription()),
+                    'description' => $this->makeDocDescription($responseRule->getTitle(),
+                        $responseRule->getDescription()),
                     // хак, для того чтобы оторажалось описание для $ref
-                    'allOf'=>[
+                    'allOf'       => [
                         ['$ref' => $this->refName($responseRule->getType())]
                     ]
                 ];
