@@ -138,15 +138,15 @@ class ConfigGenerator
             $configData['paths'][$action][$method] = $point;
         }
 
-        if(empty($configData['components'])){
+        if (empty($configData['components'])) {
             $configData['components'] = [];
         }
 
-        if(empty($configData['components']['schemas'])){
+        if (empty($configData['components']['schemas'])) {
             $configData['components']['schemas'] = [];
         }
 
-        $configData['components']['schemas'] = array_replace($configData['components']['schemas'],$this->schemas);
+        $configData['components']['schemas'] = array_replace($configData['components']['schemas'], $this->schemas);
         return $configData;
     }
 
@@ -180,10 +180,14 @@ class ConfigGenerator
         };
 
 
-        $this->schemas[$this->schemaName($className)] = $this->makeObjectProperties($class->getRules()->getData());
+        $this->schemas[$this->schemaName($className)] = [
+            'description' => $this->makeDocDescription($class->getTitle(), $class->getDescription()),
+            'properties'  => $this->makeObjectProperties($class->getRules()->getData())
+        ];
     }
 
-    protected function refName($className){
+    protected function refName($className)
+    {
         return '#/components/schemas/'.$this->schemaName($className);
     }
 
@@ -323,7 +327,7 @@ class ConfigGenerator
     {
         $data = [
             'name'        => $ruleItem->getKey(),
-            'description' => $this->makeDescription($ruleItem),
+            'description' => $this->makeDescriptionRule($ruleItem),
             'schema'      => [
                 'type' => Property::getFormatFromValidator($ruleItem->getType())
             ],
@@ -370,21 +374,42 @@ class ConfigGenerator
     }
 
     /**
+     * @param $title
+     * @param $description
+     *
+     * @return string
+     */
+    protected function makeDocDescription($title = '', $description, $descriptionGlue = "\n")
+    {
+        if (is_array($description)) {
+            $descriptionCompiled = implode($descriptionGlue, $description);
+        } else {
+            $descriptionCompiled = $description;
+        }
+
+        $descriptionCompiled = '<small><i>'.$descriptionCompiled.'</i></small>';
+
+        $return = '';
+        if ($title && $description) {
+            $return = '<div>'.$title.'</div><div>'.$descriptionCompiled.'</div>';
+        } elseif ($title) {
+            $return = $title;
+        } elseif ($description) {
+            $return = $description;
+        }
+        return $return;
+    }
+
+    /**
      * Генерация описания
      *
      * @param RuleItem $responseRule
      *
      * @return string
      */
-    public function makeDescription(RuleItem $responseRule)
+    public function makeDescriptionRule(RuleItem $responseRule)
     {
-        if ($responseRule->getDescription()) {
-            $description = '<div>'.$responseRule->getTitle().'</div>';
-            $description .= '<div><small><i>'.$responseRule->getDescription().'</i></small></div>';
-        } else {
-            $description = $responseRule->getTitle();
-        }
-        return $description;
+        return $this->makeDocDescription($responseRule->getTitle(), $responseRule->getDescription());
     }
 
     /**
@@ -406,7 +431,11 @@ class ConfigGenerator
                 $this->addSchema($responseRule->getType());
 
                 $json[$responseRule->getKey()] = [
-                    '$ref' => $this->refName($responseRule->getType())
+                    'description' => $this->makeDocDescription($responseRule->getTitle(),$responseRule->getDescription()),
+                    // хак, для того чтобы оторажалось описание для $ref
+                    'allOf'=>[
+                        ['$ref' => $this->refName($responseRule->getType())]
+                    ]
                 ];
             } else {
                 $json[$responseRule->getKey()] = $this->makeOneResponseProperty($responseRule);
@@ -426,7 +455,7 @@ class ConfigGenerator
     {
         $object = [
             'type'        => Property::getFormatFromValidator($responseRule->getType()),
-            'description' => $this->makeDescription($responseRule)
+            'description' => $this->makeDescriptionRule($responseRule)
         ];
 
         if (($example = $this->getExample($responseRule)) !== null) {
@@ -458,7 +487,7 @@ class ConfigGenerator
     {
         $object = [
             'type'        => 'array',
-            'description' => $this->makeDescription($responseRule)
+            'description' => $this->makeDescriptionRule($responseRule)
         ];
 
         if ($responseRule->getType() === 'object') {
