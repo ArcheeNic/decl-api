@@ -38,7 +38,6 @@ class MakeDocTest extends TestCase
 
     }
 
-
     /**
      * @throws \ReflectionException
      * @throws \Exception

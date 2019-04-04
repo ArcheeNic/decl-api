@@ -110,11 +110,28 @@ class ConfigGenerator
             foreach ($requestRules['header'] as $rule) {
                 $parameters[] = $this->makeParameterHeader($rule);
             }
+
             foreach ($requestRules['parameter'] as $rule) {
                 $parameters[] = $this->makeParameterQuery($rule);
             }
+
             foreach ($requestRules['cookie'] as $rule) {
                 $parameters[] = $this->makeParameterCookie($rule);
+            }
+
+            if (!empty($requestRules['json'])) {
+                $requestName = $className.'Request';
+                $this->addSchemaRequestJson($requestName, $requestRules['json']);
+                $point['requestBody'] = [
+                    'required' => true,
+                    'content'  => [
+                        'application/json' => [
+                            'schema' => [
+                                '$ref' => $this->refName($requestName)
+                            ]
+                        ]
+                    ]
+                ];
             }
 
             $point['parameters'] = $parameters;
@@ -171,21 +188,49 @@ class ConfigGenerator
      */
     public function addSchema(string $className)
     {
-        if (isset($this->schemas[$className])) {
+        $schemaName = $this->schemaName($className);
+
+        if (isset($this->schemas[$schemaName])) {
             return null;
-        };
+        }
 
         if (!$class = $this->getClass($className)) {
             return null;
-        };
+        }
 
-
-        $this->schemas[$this->schemaName($className)] = [
+        $this->schemas[$schemaName] = [
             'description' => $this->makeDocDescription($class->getTitle(), $class->getDescription()),
             'properties'  => $this->makeObjectProperties($class->getRules()->getData())
         ];
     }
 
+
+    /**
+     * @param $schemaName
+     * @param $rules
+     *
+     * @return null
+     * @throws DeclApiCoreException
+     */
+    public function addSchemaRequestJson($className, $rules)
+    {
+        $schemaName = $this->schemaName($className);
+
+        if (isset($this->schemas[$schemaName])) {
+            return null;
+        }
+
+        $this->schemas[$schemaName] = [
+            'properties'  => $this->makeObjectProperties($rules)
+        ];
+    }
+
+    /**
+     * @param $className
+     *
+     * @return string
+     * @throws DeclApiCoreException
+     */
     protected function refName($className)
     {
         return '#/components/schemas/'.$this->schemaName($className);
@@ -349,6 +394,7 @@ class ConfigGenerator
      * @param ItemObject $response
      *
      * @return array
+     * @throws DeclApiCoreException
      */
     protected function makeResponseOk(ItemObject $response): array
     {
