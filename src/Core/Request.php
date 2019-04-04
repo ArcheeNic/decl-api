@@ -145,17 +145,22 @@ abstract class Request extends ObjectClass
 
     public final function hasParameterField($fieldName): bool
     {
-        return $this->getTargetField('parameter', $fieldName);
+        return $this->hasTargetField('parameter', $fieldName);
     }
 
     public final function hasCookieField($fieldName): bool
     {
-        return $this->getTargetField('cookie', $fieldName);
+        return $this->hasTargetField('cookie', $fieldName);
     }
 
     public final function hasHeaderField($fieldName): bool
     {
-        return $this->getTargetField('header', $fieldName);
+        return $this->hasTargetField('header', $fieldName);
+    }
+
+    public final function hasJsonField($fieldName): bool
+    {
+        return $this->hasTargetField('json', $fieldName);
     }
 
     public final function getParameterField($fieldName)
@@ -171,6 +176,11 @@ abstract class Request extends ObjectClass
     public final function getHeaderField($fieldName)
     {
         return $this->getTargetField('header',$fieldName);
+    }
+
+    public final function getJsonField($fieldName)
+    {
+        return $this->getTargetField('json',$fieldName);
     }
 
 }

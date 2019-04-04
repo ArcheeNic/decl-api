@@ -3,7 +3,6 @@
 use DeclApi\Core\DeclApiCoreException;
 use DeclApi\Core\Point;
 use DeclApi\Core\RuleItem;
-use DeclApi\Documentor\ItemInfo;
 use DeclApi\Documentor\ItemObject;
 use DeclApi\Documentor\ItemPoint;
 use DeclApi\Documentor\ItemRequest;

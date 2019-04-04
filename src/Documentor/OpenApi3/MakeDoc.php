@@ -1,15 +1,9 @@
 <?php namespace DeclApi\Documentor\OpenApi3;
 
-use DeclApi\Core\DeclApiCoreException;
-use DeclApi\Core\ObjectClass;
 use DeclApi\Core\Point;
-use DeclApi\Core\Request;
 use DeclApi\Core\RuleItem;
-use DeclApi\Core\RulesInfo;
 use DeclApi\Documentor\FileSystem;
 use DeclApi\Documentor\ItemObject;
-use DeclApi\Documentor\ItemPoint;
-use DeclApi\Documentor\ItemRequest;
 use DeclApi\Documentor\OpenApi3\Specification\Property;
 
 class MakeDoc extends FileSystem
