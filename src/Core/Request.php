@@ -9,7 +9,6 @@
  */
 abstract class Request extends ObjectClass
 {
-
     //region Работа с исходными данными
 
     protected function setData($data = [])
@@ -59,6 +58,7 @@ abstract class Request extends ObjectClass
             }
         }
     }
+
 
     /**
      * @see ObjectClass::mutate()

@@ -70,7 +70,7 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
         $this->initRules();
 
         if ($preValidate === true) {
-            $validator = $this->validatorCustom($data)  ;
+            $validator = $this->validatorCustom($data);
             if ($validator->fails()) {
                 throw new DeclApiValiadateException($this, $validator);
             }
@@ -167,6 +167,9 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
 
         if ($rule->isObject()) {
             $className = $rule->getType();
+            if (!is_array($value)) {
+                throw new DeclApiCoreException('Некорретный тип данных. Текущий тип: '.gettype($value).', ожидаемый: '.$rule->getType().'. Целевое поле: '.$rule->getKey().'. Значение:'.dump($value));
+            }
             return new $className($value, $this->preValidate);
         }
 
@@ -252,8 +255,19 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
             }
             if (is_array($value)) {
                 foreach ($value as $subkey => $subvalue) {
-                    if ($subvalue instanceof ObjectClass) {
-                        $array[$key][$subkey] = $subvalue->toArray();
+                    if (is_array($subvalue)) {
+                        foreach ($subvalue as $subsubkey => $subsubvalue) {
+                            if (empty($array[$key][$subkey])) {
+                                $array[$key][$subkey] = [];
+                            }
+                            if ($subsubvalue instanceof ObjectClass) {
+                                $array[$key][$subkey][$subsubkey] = $subsubvalue->toArray();
+                            }
+                        }
+                    } else {
+                        if ($subvalue instanceof ObjectClass) {
+                            $array[$key][$subkey] = $subvalue->toArray();
+                        }
                     }
                 }
             }

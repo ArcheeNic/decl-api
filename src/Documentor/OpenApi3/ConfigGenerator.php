@@ -67,7 +67,7 @@ class ConfigGenerator
             $point = [
                 'description' => implode("\n", $itemPoint->getDescription())."\n"
                                  .$this->makeResponsesDescription($class),
-                'summary'     => $itemPoint->getTitle(),
+                'summary'     => $itemPoint->getTitle()
             ];
 
             if ($itemPoint->getTag()) {

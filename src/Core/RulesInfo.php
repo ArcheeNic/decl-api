@@ -1,5 +1,7 @@
 <?php namespace DeclApi\Core;
 
+use Illuminate\Validation\Rule;
+
 /**
  * Список правил хранимых полей
  * Class RulesInfo
@@ -49,6 +51,15 @@ class RulesInfo
                 }
             } else {
                 $rules[$key] = $value->getAttributes();
+            }
+
+            if($value->getType() === 'in_string'){
+                $rules[$key][]='in_string:'.implode(',',$value->getEnum());
+                if(array_search('in_string',$rules[$key]) !== false){
+                    unset($rules[$key][array_search('in_string',$rules[$key])]);
+                }
+            }elseif($value->getEnum()){
+                $rules[$key][]='in:'.implode(',',$value->getEnum());
             }
         }
 
