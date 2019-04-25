@@ -70,7 +70,10 @@ abstract class Laravel5Point extends Point implements BridgeContract
                 }
             }
         } catch (DeclApiException $exception) {
-            return $this->abort($exception->getResponseCode(), $exception->getMessage(), $exception->getHeaders());
+            return $this->abort($exception->getResponseCode(), [
+                'title'       => $exception->getTitle(),
+                'description' => $exception->getDescription()
+            ], $exception->getHeaders());
         } catch (\Exception $exception) {
             if (env('APP_DEBUG')) {
                 return $this->abort(500,
