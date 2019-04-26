@@ -52,7 +52,7 @@ class DeclApiException extends \Exception
      *
      * @return string
      */
-    public function getTitle(): string
+    public function getTitle()
     {
         return $this->title;
     }
@@ -62,7 +62,7 @@ class DeclApiException extends \Exception
      *
      * @return string
      */
-    public function getDescription(): string
+    public function getDescription()
     {
         return $this->description;
     }

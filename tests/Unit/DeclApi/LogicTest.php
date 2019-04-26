@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\DeclApi;
 
+use DeclApi\Core\DeclApiValiadateException;
 use DeclApi\Core\Frameworks\Laravel5Point;
 use Illuminate\Http\Request;
 use Tests\TestCase;
@@ -69,6 +70,7 @@ class LogicTest extends TestCase
         $this->assertFalse($request->validator()->fails(),$request->validator()->errors());
 
         $next     = new TestedPoint();
+        $this->expectException(DeclApiValiadateException::class);
         $response = $next->handler($request);
         $errors   = $response->validator()->errors();
 

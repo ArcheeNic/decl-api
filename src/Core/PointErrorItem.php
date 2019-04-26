@@ -55,7 +55,7 @@ final class PointErrorItem
     /**
      * @return string
      */
-    public function getDocDescription(): string
+    public function getDocDescription()
     {
         return $this->docDescription;
     }
@@ -74,7 +74,7 @@ final class PointErrorItem
     /**
      * @return string
      */
-    public function getErrorTitle(): string
+    public function getErrorTitle()
     {
         return $this->errorTitle;
     }
@@ -93,7 +93,7 @@ final class PointErrorItem
     /**
      * @return string
      */
-    public function getErrorDescription(): string
+    public function getErrorDescription()
     {
         return $this->errorDescription;
     }
