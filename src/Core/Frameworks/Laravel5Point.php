@@ -76,10 +76,10 @@ abstract class Laravel5Point extends Point implements BridgeContract
             ], $exception->getHeaders());
         } catch (\Exception $exception) {
             if (env('APP_DEBUG')) {
-                return $this->abort(500,
+                return $this->abort(501,
                     ['message' => $exception->getMessage(), 'trace' => explode("\n", $exception->getTraceAsString())]);
             }
-            return $this->abort(500, ['message' => 'Произошла системная ошибка. Обратитесь к разарботчикам']);
+            return $this->abort(501, ['message' => 'Произошла системная ошибка. Обратитесь к разарботчикам']);
         }
         return $this->illuminateResponse->setContent($response->jsonSerialize());
     }
@@ -94,7 +94,7 @@ abstract class Laravel5Point extends Point implements BridgeContract
         return null;
     }
 
-    public function abort($code = 500, $message, $headers = [])
+    public function abort($code = 501, $message, $headers = [])
     {
         $response = $this->illuminateResponse;
         $response->setStatusCode($code);
