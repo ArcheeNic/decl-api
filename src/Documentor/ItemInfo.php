@@ -83,7 +83,8 @@ abstract class ItemInfo
         $doc               = $this->parseDoc($docRaw);
         $this->title       = $doc['title'];
         $this->description = $doc['description'];
-        $this->tag        = (isset($doc['tags']) && isset($doc['tags']['tag'])) ? $doc['tags']['tag'] : [];
+        $this->tag         = (isset($doc['tags']) && isset($doc['tags']['tag'])) ? $doc['tags']['tag'] : [];
+        $this->tag         = array_map('trim', $this->tag);
     }
 
     protected function parseDoc($content)
