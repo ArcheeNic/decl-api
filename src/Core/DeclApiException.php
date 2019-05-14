@@ -35,7 +35,7 @@ class DeclApiException extends \Exception
     public function __construct(
         string $title,
         string $description = "",
-        int $responseCode = 500,
+        int $responseCode = 501,
         array $headers = [],
         int $code = 0,
         Throwable $previous = null

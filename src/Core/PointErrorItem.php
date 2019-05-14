@@ -31,7 +31,7 @@ final class PointErrorItem
     /**
      * @var int $httpCode http код ответа
      */
-    protected $httpCode = 500;
+    protected $httpCode = 501;
 
     /**
      * @return string|null

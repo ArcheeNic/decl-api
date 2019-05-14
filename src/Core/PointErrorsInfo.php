@@ -2,7 +2,7 @@
 
 /**
  * Список возможных ошибок поинта.
- * Другие варианты стабильно будут отдавать 500 ошибку.
+ * Другие варианты стабильно будут отдавать 501 ошибку.
  * Class Point
  *
  * @package DeclApi\Core
@@ -27,7 +27,7 @@ final class PointErrorsInfo
      * @return PointErrorsInfo
      * @throws
      */
-    public function addError($key, $docDescription, $errorTitle, $errorDescription, $httpCode = 500): PointErrorItem
+    public function addError($key, $docDescription, $errorTitle, $errorDescription, $httpCode = 501): PointErrorItem
     {
         if (isset($this->data[$key])) {
             throw new \Exception('Добавить ошибку не удается. Такой ключ ошибки уже сущестует');
