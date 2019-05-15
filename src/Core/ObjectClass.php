@@ -32,10 +32,7 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
     /**
      * Добавить информацию о правилах хранимых полей
      */
-    protected function initRules()
-    {
-
-    }
+    abstract protected function initRules();
     //endregion
 
     /**

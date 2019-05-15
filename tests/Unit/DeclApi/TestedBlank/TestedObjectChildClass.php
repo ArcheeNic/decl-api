@@ -19,7 +19,7 @@ class TestedObjectChildClass extends ObjectClass
      *
      * @throws \Exception
      */
-    public function initRules(array $data = [])
+    public function initRules()
     {
         $this->rulesInfo()->add('integer', 'test', 'Тест', 'Тестовое поле')->setAttributes('required');
         $this->rulesInfo()->add('integer', 'testArray', 'Тест массива', 'Поле в виде массива')->setAttributes('required')->setIsArray(true);

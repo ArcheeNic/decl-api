@@ -12,7 +12,6 @@ class TestedResponse extends ObjectClass
 {
     public function initRules()
     {
-        parent::initRules();
         $this->rulesInfo()->add('string', 'status', 'Статус ответа', 'Статус ответа')->setAttributes('required')
             ->setEnum(['success', 'error'])->setDefault('success');
         $this->rulesInfo()->add('integer', 'statusCode', 'Код ответа', 'Аналог HTTP статусов ответа')
