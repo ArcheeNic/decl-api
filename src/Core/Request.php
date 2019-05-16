@@ -67,7 +67,7 @@ abstract class Request extends ObjectClass
     {
         if ($rule->isObject()) {
             $className = $rule->getType();
-            return new $className($value);
+            return new $className($value, $this->preValidate);
         } elseif ($rule->getType() === 'integer') {
             return (int)$value;
         } else {
