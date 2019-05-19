@@ -66,6 +66,7 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
 
         $this->initRules();
 
+
         if ($preValidate === true) {
             $validator = $this->validatorCustom($data);
             if ($validator->fails()) {
@@ -188,7 +189,7 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
      */
     public function validator(): \Illuminate\Contracts\Validation\Validator
     {
-        return (new ValidatorFactory)->make($this->dataRaw, $this->rulesInfo()->rules());
+        return (new ValidatorFactory)->make($this->dataRaw, $this->rulesInfo()->rulesCompiled());
     }
 
     /**
@@ -200,7 +201,7 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
      */
     public function validatorCustom($data): \Illuminate\Contracts\Validation\Validator
     {
-        return (new ValidatorFactory)->make($data, $this->rulesInfo()->rules());
+        return (new ValidatorFactory)->make($data, $this->rulesInfo()->rulesCompiled());
     }
 
     //region Работа с мутированными данными (конечные данные для работы)

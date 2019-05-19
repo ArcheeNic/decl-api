@@ -48,23 +48,48 @@ class RulesInfo
                 $rulesChild = $class->rulesInfo()->rules();
                 foreach ($rulesChild as $childKey => $childValue) {
                     $rules[$key.'.'.$childKey] = $childValue;
+                    foreach ($rules[$key.'.'.$childKey] as $keyAttr => $valueAttr) {
+                        $rules[$key.'.'.$childKey][$keyAttr] = str_replace('{this}.', $key.'.{this}.', $valueAttr);
+                    }
                 }
             } else {
                 $rules[$key] = $value->getAttributes();
             }
 
-            if($value->getType() === 'in_string'){
-                $rules[$key][]='in_string:'.implode(',',$value->getEnum());
-                if(array_search('in_string',$rules[$key]) !== false){
-                    unset($rules[$key][array_search('in_string',$rules[$key])]);
+            if ($value->getType() === 'in_string') {
+                $rules[$key][] = 'in_string:'.implode(',', $value->getEnum());
+                if (array_search('in_string', $rules[$key]) !== false) {
+                    unset($rules[$key][array_search('in_string', $rules[$key])]);
                 }
-            }elseif($value->getEnum()){
-                $rules[$key][]='in:'.implode(',',$value->getEnum());
+            } elseif ($value->getEnum()) {
+                $rules[$key][] = 'in:'.implode(',', $value->getEnum());
             }
         }
 
         $rules = array_filter($rules);
 
+        return $rules;
+    }
+
+    /**
+     * @param array $rules
+     *
+     * @return array
+     */
+    protected function rulesClearRelative(array $rules): array
+    {
+        foreach ($rules as $keyAttr => $valueAttr) {
+            $rules[$keyAttr] = str_replace('{this}.', '', $valueAttr);
+        }
+        return $rules;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function rulesCompiled(){
+        $rules = $this->rules();
+        $rules = $this->rulesClearRelative($rules);
         return $rules;
     }
 

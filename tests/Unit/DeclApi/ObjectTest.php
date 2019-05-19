@@ -9,43 +9,48 @@ use Tests\Unit\DeclApi\TestedBlank\TestedObjectChildClass;
 use Tests\Unit\DeclApi\TestedBlank\TestedObjectClass;
 use Tests\Unit\DeclApi\TestedBlank\TestedObjectDefaults;
 use Tests\Unit\DeclApi\TestedBlank\TestedRequest;
+use Tests\Unit\DeclApi\TestedBlank\TestedSpecifyRulesObject;
 
 class ObjectTest extends TestCase
 {
     /**
      * проверяем - возвращает ли ошибки валидации при пустом массиве
+     *
      * @throws \Exception
      */
-    public function testEmpty(){
-        $object = new TestedObjectClass([],false);
+    public function testEmpty()
+    {
+        $object = new TestedObjectClass([], false);
         $this->assertCount(2, $object->validator()->errors());
     }
 
     /**
      * проверяем - возвращает ли дочерние ошибки валидации?
+     *
      * @throws \Exception
      */
     public function testIncorrectChildValidations()
     {
         $this->expectExceptionMessage('{"test.test":["validation.integer"],"test.testArray":["validation.required"]');
-        new TestedObjectClass(['test'=>['test' => ['test' => 'example']]]);
+        new TestedObjectClass(['test' => ['test' => ['test' => 'example']]]);
     }
 
     /**
      * Проверяется предвалидация и ее отключение
+     *
      * @throws \Exception
      */
     public function testPreValidate()
     {
         // пустой массив автоматом отключает превалиацию
-        new TestedObjectClass(['test'=>['test' => ['test' => 'example']]],false);
+        new TestedObjectClass(['test' => ['test' => ['test' => 'example']]], false);
 
         // превалидация отключена
-        new TestedObjectClass(['test'=>['test' => ['test' => 'example']]],false);
+        new TestedObjectClass(['test' => ['test' => ['test' => 'example']]], false);
 
         // превалидация включена
         $this->expectException(DeclApiValiadateException::class);
-        new TestedObjectClass(['test'=>['test' => ['test' => 'example']]]);
+        new TestedObjectClass(['test' => ['test' => ['test' => 'example']]]);
     }
 
     /**
@@ -56,11 +61,11 @@ class ObjectTest extends TestCase
     public function testValidate()
     {
         // проверяем - правильно ли реагирует валидатор на введенные данные без массива
-        $object = new TestedObjectClass(['test' => ['test' => '1']],false);
+        $object = new TestedObjectClass(['test' => ['test' => '1']], false);
         $this->assertCount(1, $object->validator()->errors());
 
         // проверяем - правильно ли реагирует валидатор на введенные данные с неверным массивом (по ошибке на каждый элемент)
-        $object = new TestedObjectClass(['test' => ['test' => '1', 'testArray' => ['a', 'b', 'c']]],false);
+        $object = new TestedObjectClass(['test' => ['test' => '1', 'testArray' => ['a', 'b', 'c']]], false);
         $this->assertCount(3, $object->validator()->errors());
 
         // проверяем - правильно ли реагирует валидатор на введенные данные с массивом
@@ -86,11 +91,11 @@ class ObjectTest extends TestCase
         $object = new TestedRequest([
                 'header'    => ['headerTest' => '1'],
                 'cookie'    => ['cookiesTest' => '1'],
-                'json'      => ['left_field'=>'1111'],
+                'json'      => ['left_field' => '1111'],
                 'parameter' => []
             ]
-        ,false);
-        $errors  = DiffFieldsObject::diffRequest($object);
+            , false);
+        $errors = DiffFieldsObject::diffRequest($object);
 
         $this->assertEquals([
             'JSON.left_field' => 'Поле left_field не указано в правилах',
@@ -129,5 +134,20 @@ class ObjectTest extends TestCase
     {
         $object = new TestedObjectDefaults();
         $this->assertEquals(['stringArray' => []], $object->toArray());
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function testSpecifyRulesObject()
+    {
+        $object = new TestedSpecifyRulesObject([
+            'childRules' => [
+                'childRules' => [
+                    'rw1' => 'example'
+                ]
+            ]
+        ]);
+        $this->assertInstanceOf(TestedSpecifyRulesObject::class, $object);
     }
 }
