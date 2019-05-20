@@ -9,11 +9,13 @@ use DeclApi\Core\RulesInfoRequest;
 use Illuminate\Http\Request;
 use Tests\TestCase;
 use Tests\Unit\DeclApi\TestedBlank\TestedRequest;
+use Tests\Unit\DeclApi\TestedBlank\TestedSpecifyRulesRequest;
 
 class RequestTest extends TestCase
 {
     /**
      * Проверка работы валидации объекта запрсса
+     *
      * @throws \Exception
      */
     function testRequestValidate()
@@ -21,8 +23,8 @@ class RequestTest extends TestCase
         $this->markTestSkipped('Пропущено. Laravel не установлен');
 
         // числа намеренно инициируются как строки,  для проверки работоспособности
-        $dataRaw    = ['test' => ['test' => '1', 'testArray' => ['0', '1', '2']]];
-        $json    = json_encode($dataRaw);
+        $dataRaw     = ['test' => ['test' => '1', 'testArray' => ['0', '1', '2']]];
+        $json        = json_encode($dataRaw);
         $requestData = Request::create('', 'POST', $dataRaw, ['cookiesTest' => '1'], [], [], $json);
         $requestData->headers->set('headerTest', '1');
 
@@ -36,8 +38,9 @@ class RequestTest extends TestCase
 
         // неуспешная валидация
         $dataRaw['test']['testArray'][0] = 'not integer';
-        $json    = json_encode($dataRaw);
-        $requestData = Request::create('', 'POST', $dataRaw, ['cookiesTest' => 'not integer'], [], [], $json);
+        $json                            = json_encode($dataRaw);
+        $requestData                     = Request::create('', 'POST', $dataRaw, ['cookiesTest' => 'not integer'], [],
+            [], $json);
         $requestData->headers->set('headerTest', null);
 
         $request = new TestedRequest(Laravel5Point::requestToArray($requestData));
@@ -45,5 +48,22 @@ class RequestTest extends TestCase
         $this->assertCount(1, $request->validator('json')->errors());
         $this->assertCount(1, $request->validator('cookie')->errors());
         $this->assertCount(2, $request->validator('header')->errors());
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function testSpecifyRulesObject()
+    {
+        $object = new TestedSpecifyRulesRequest([
+            'json' => [
+                'childRules' => [
+                    'childRules1' => [
+                        'rw1' => 'example'
+                    ]
+                ]
+            ]
+        ]);
+        $this->assertInstanceOf(TestedSpecifyRulesRequest::class, $object);
     }
 }

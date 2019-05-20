@@ -49,7 +49,7 @@ class RulesInfo
                 foreach ($rulesChild as $childKey => $childValue) {
                     $rules[$key.'.'.$childKey] = $childValue;
                     foreach ($rules[$key.'.'.$childKey] as $keyAttr => $valueAttr) {
-                        $rules[$key.'.'.$childKey][$keyAttr] = str_replace('{this}.', $key.'.{this}.', $valueAttr);
+                        $rules[$key.'.'.$childKey][$keyAttr] = str_replace('{this}.', '{this}.'.$key.'.', $valueAttr);
                     }
                 }
             } else {

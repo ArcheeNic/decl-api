@@ -189,6 +189,10 @@ class RulesInfoRequest
                 $rulesChild = $class->rulesInfo()->rules($target);
                 foreach ($rulesChild as $childKey => $childValue) {
                     $rules[$key.'.'.$childKey] = $childValue;
+
+                    foreach ($rules[$key.'.'.$childKey] as $keyAttr => $valueAttr) {
+                        $rules[$key.'.'.$childKey][$keyAttr] = str_replace('{this}.', '{this}.'.$key.'.', $valueAttr);
+                    }
                 }
             } else {
                 $rules[$key] = $value->getAttributes();
@@ -213,9 +217,35 @@ class RulesInfoRequest
              */
             foreach ($this->rulesGroup($key) as $item => $value) {
                 $rules[$key.'.'.$item] = $value;
+                foreach ($rules[$key.'.'.$item] as $keyAttr => $valueAttr) {
+                    $rules[$key.'.'.$item][$keyAttr] = str_replace('{this}.', '{this}.'.$key.'.', $valueAttr);
+                }
             }
         }
 
+        return $rules;
+    }
+
+
+    /**
+     * @param array $rules
+     *
+     * @return array
+     */
+    protected function rulesClearRelative(array $rules): array
+    {
+        foreach ($rules as $keyAttr => $valueAttr) {
+            $rules[$keyAttr] = str_replace('{this}.', '', $valueAttr);
+        }
+        return $rules;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function rulesCompiled(){
+        $rules = $this->rules();
+        $rules = $this->rulesClearRelative($rules);
         return $rules;
     }
 }

@@ -6,6 +6,6 @@ class TestedSpecifySubRulesObject extends ObjectClass
 {
     protected function initRules()
     {
-        $this->rulesInfo()->addObject(TestedSpecifySub2RulesObject::class,'childRules','образец второго дочернего класса')->setIsObject(true);
+        $this->rulesInfo()->addObject(TestedSpecifySub2RulesObject::class,'childRules1','образец второго дочернего класса')->setIsObject(true);
     }
 }

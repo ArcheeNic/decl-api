@@ -143,7 +143,7 @@ class ObjectTest extends TestCase
     {
         $object = new TestedSpecifyRulesObject([
             'childRules' => [
-                'childRules' => [
+                'childRules1' => [
                     'rw1' => 'example'
                 ]
             ]
