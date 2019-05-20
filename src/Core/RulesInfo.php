@@ -56,13 +56,13 @@ class RulesInfo
                 $rules[$key] = $value->getAttributes();
             }
 
-            if ($value->getType() === 'in_string') {
-                $rules[$key][] = 'in_string:'.implode(',', $value->getEnum());
-                if (array_search('in_string', $rules[$key]) !== false) {
-                    unset($rules[$key][array_search('in_string', $rules[$key])]);
+            if($value->getType() === 'in_string'){
+                $rules[$key][]='in_string:'.implode(',',$value->getEnum());
+                if(array_search('in_string',$rules[$key]) !== false){
+                    unset($rules[$key][array_search('in_string',$rules[$key])]);
                 }
-            } elseif ($value->getEnum()) {
-                $rules[$key][] = 'in:'.implode(',', $value->getEnum());
+            }elseif($value->getEnum()){
+                $rules[$key][]='in:'.implode(',',$value->getEnum());
             }
         }
 

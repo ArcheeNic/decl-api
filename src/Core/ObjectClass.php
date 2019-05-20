@@ -1,5 +1,7 @@
 <?php namespace DeclApi\Core;
 
+use Illuminate\Validation\Factory;
+
 /**
  * Объект данных.
  * Class Object
@@ -51,21 +53,41 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
     protected $preValidate = true;
 
     /**
+     * @var ValidationFactory $validationFactory
+     */
+    protected $validationFactory = null;
+
+    /**
+     * @return ValidationFactory
+     */
+    public function getValidationFactory(): ValidatorFactory
+    {
+        if ($this->validationFactory === null) {
+            $this->validationFactory = new ValidatorFactory();
+        }
+        return $this->validationFactory;
+    }
+
+    /**
      * Создание объекта.
      * Object constructor.
      *
-     * @param array $data        данные
-     * @param bool  $preValidate предварительная валидация (происходит между записью массива и мутацией)
+     * @param array        $data        данные
+     * @param bool         $preValidate предварительная валидация (происходит между записью массива и мутацией)
+     * @param Factory|null $validator
      *
-     * @throws \Exception
+     * @throws DeclApiValiadateException
      */
-    public function __construct(array $data = [], bool $preValidate = true)
+    public function __construct(array $data = [], bool $preValidate = true, ValidatorFactory $validator = null)
     {
+        if ($validator) {
+            $this->validationFactory = $validator;
+        }
+
         $this->preValidate = $preValidate;
         $this->rulesInfo();
 
         $this->initRules();
-
 
         if ($preValidate === true) {
             $validator = $this->validatorCustom($data);
@@ -166,9 +188,11 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
         if ($rule->isObject()) {
             $className = $rule->getType();
             if (!is_array($value)) {
-                throw new DeclApiCoreException('Некорретный тип данных. Текущий тип: '.gettype($value).', ожидаемый: '.$rule->getType().'. Целевое поле: '.$rule->getKey().'. Значение:'.dump($value));
+                throw new DeclApiCoreException('Некорретный тип данных. Текущий тип: '.gettype($value).', ожидаемый: '
+                                               .$rule->getType().'. Целевое поле: '.$rule->getKey().'. Значение:'
+                                               .dump($value));
             }
-            return new $className($value, $this->preValidate);
+            return new $className($value, false, $this->getValidationFactory());
         }
 
         if ($rule->getType() === 'integer') {
@@ -189,7 +213,7 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
      */
     public function validator(): \Illuminate\Contracts\Validation\Validator
     {
-        return (new ValidatorFactory)->make($this->dataRaw, $this->rulesInfo()->rulesCompiled());
+        return $this->getValidationFactory()->make($this->dataRaw, $this->rulesInfo()->rulesCompiled());
     }
 
     /**
@@ -201,7 +225,7 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
      */
     public function validatorCustom($data): \Illuminate\Contracts\Validation\Validator
     {
-        return (new ValidatorFactory)->make($data, $this->rulesInfo()->rulesCompiled());
+        return $this->getValidationFactory()->make($data, $this->rulesInfo()->rulesCompiled());
     }
 
     //region Работа с мутированными данными (конечные данные для работы)

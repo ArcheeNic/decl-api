@@ -8,16 +8,20 @@ class ValidatorFactory
 {
     private $factory;
 
-    public function __construct()
+    public function __construct(Validation\Factory $factory = null)
     {
-        $this->factory = new Validation\Factory(
-            $this->loadTranslator()
-        );
+        if(!$factory){
+            $this->factory = new Validation\Factory(
+                $this->loadTranslator()
+            );
+        }else{
+            $this->factory = $factory;
+        }
     }
 
     protected function loadTranslator($locale = 'en', $url = null)
     {
-        $file       = dirname(dirname(__FILE__)).'/lang';
+        $file       = dirname(__FILE__).'/lang';
         $filesystem = new Filesystem();
         $loader     = new Translation\FileLoader($filesystem, $file);
         $loader->addNamespace('lang', $file);

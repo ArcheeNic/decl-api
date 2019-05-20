@@ -5,7 +5,9 @@ use DeclApi\Core\DiffFieldsObject;
 use DeclApi\Core\ObjectClass;
 use DeclApi\Core\Point;
 use DeclApi\Core\Request;
+use DeclApi\Core\ValidatorFactory;
 use DeclApi\Documentor\ItemPoint;
+use Illuminate\Contracts\Validation\Factory;
 
 /**
  * Мост Pointа для Laravel 5.4+
@@ -47,7 +49,7 @@ abstract class Laravel5Point extends Point implements BridgeContract
             /**
              * @var Request $requestEnd
              */
-            $requestEnd = new $requestType(static::requestToArray($illuminateRequest));
+            $requestEnd = new $requestType(static::requestToArray($illuminateRequest),true, new ValidatorFactory(app(Factory::class)));
 
             // проверяем диффы
             $this->requestCheckDiffErrors(DiffFieldsObject::diffRequest($requestEnd));

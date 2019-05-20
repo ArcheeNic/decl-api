@@ -122,7 +122,7 @@ class RulesInfoRequest
         /**
          * @var ObjectClass $class
          */
-        $class = new $className([],false);
+        $class = new $className([], false);
         $rules = $class->rulesInfo()->getData();
 
         return $this->data[$target] = $rules;
@@ -144,6 +144,7 @@ class RulesInfoRequest
 
     /**
      * Проверить что цель указана верно и заявлена в классе
+     *
      * @param $target
      *
      * @throws \Exception
@@ -151,12 +152,13 @@ class RulesInfoRequest
     protected function checkTarget($target)
     {
         if (!isset($this->data[$target])) {
-            throw new DeclApiException('Incorrect rules target','Target {'.$target.'} rule');
+            throw new DeclApiException('Incorrect rules target', 'Target {'.$target.'} rule');
         }
     }
 
     /**
      * Получить правила только по одной группе
+     *
      * @param $target
      *
      * @return array
@@ -185,7 +187,7 @@ class RulesInfoRequest
                 /**
                  * @var $class Request
                  */
-                $class      = new $className([],false);
+                $class      = new $className([], false);
                 $rulesChild = $class->rulesInfo()->rules($target);
                 foreach ($rulesChild as $childKey => $childValue) {
                     $rules[$key.'.'.$childKey] = $childValue;
@@ -199,11 +201,18 @@ class RulesInfoRequest
             }
         }
         return $rules;
+    }
 
+    public function rulesGroupCompiled($target)
+    {
+        $rules = $this->rulesGroup($target);
+        $rules = $this->rulesClearRelative($rules);
+        return $rules;
     }
 
     /**
      * Получить все правила
+     *
      * @throws \Exception
      */
     public function rules()
@@ -243,7 +252,8 @@ class RulesInfoRequest
     /**
      * @throws \Exception
      */
-    public function rulesCompiled(){
+    public function rulesCompiled()
+    {
         $rules = $this->rules();
         $rules = $this->rulesClearRelative($rules);
         return $rules;

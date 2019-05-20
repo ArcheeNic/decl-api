@@ -67,7 +67,7 @@ abstract class Request extends ObjectClass
     {
         if ($rule->isObject()) {
             $className = $rule->getType();
-            return new $className($value, $this->preValidate);
+            return new $className($value, false, $this->getValidationFactory());
         } elseif ($rule->getType() === 'integer') {
             return (int)$value;
         } else {
@@ -117,11 +117,11 @@ abstract class Request extends ObjectClass
         $target = null
     ): \Illuminate\Contracts\Validation\Validator {
         if ($target) {
-            return (new ValidatorFactory())->make($this->dataRaw[$target] ?? [],
-                $this->rulesInfo()->rulesGroup($target));
+            return $this->getValidationFactory()->make($this->dataRaw[$target] ?? [],
+                $this->rulesInfo()->rulesGroupCompiled($target));
         }
 
-        return (new ValidatorFactory())->make($this->dataRaw ?? [], $this->rulesInfo()->rules());
+        return $this->getValidationFactory()->make($this->dataRaw ?? [], $this->rulesInfo()->rulesCompiled());
     }
 
     protected function hasTargetField($target, $fieldName): bool
