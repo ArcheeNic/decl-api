@@ -334,6 +334,7 @@ class ConfigGenerator
         $data         = $this->makeParameter($ruleItem);
         $data['in']   = 'header';
         $data['name'] = str_replace('.*', '', $ruleItem->getKey());
+        $data['required'] = $ruleItem->isRequired();
         return $data;
     }
 
@@ -351,6 +352,7 @@ class ConfigGenerator
         $data         = $this->makeParameter($ruleItem);
         $data['in']   = 'cookie';
         $data['name'] = $ruleItem->getKey();
+        $data['required'] = $ruleItem->isRequired();
         return $data;
     }
 
@@ -367,6 +369,7 @@ class ConfigGenerator
         $data         = $this->makeParameter($ruleItem);
         $data['in']   = 'query';
         $data['name'] = $ruleItem->getKey();
+        $data['required'] = $ruleItem->isRequired();
         return $data;
     }
 
