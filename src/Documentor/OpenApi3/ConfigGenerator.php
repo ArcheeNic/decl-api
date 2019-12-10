@@ -184,6 +184,7 @@ class ConfigGenerator
      *
      * @return null
      * @throws DeclApiCoreException
+     * @throws \Exception
      */
     public function addSchema(string $className)
     {
@@ -201,6 +202,11 @@ class ConfigGenerator
             'description' => $this->makeDocDescription($class->getTitle(), $class->getDescription()),
             'properties'  => $this->makeObjectProperties($class->getRules()->getData())
         ];
+        $required                   = $this->getObjectRequiredFields($class->getRules()->getData());
+        if (count($required) > 0) {
+            $this->schemas[$schemaName]['required'] = $required;
+        }
+        return null;
     }
 
 
@@ -220,8 +226,14 @@ class ConfigGenerator
         }
 
         $this->schemas[$schemaName] = [
-            'properties'  => $this->makeObjectProperties($rules)
+            'properties' => $this->makeObjectProperties($rules)
         ];
+
+        $required = $this->getObjectRequiredFields($rules);
+        if (count($required) > 0) {
+            $this->schemas[$schemaName]['required'] = $required;
+        }
+        return null;
     }
 
     /**
@@ -463,7 +475,7 @@ class ConfigGenerator
      * @param RuleItem[] $responseRules
      *
      * @return array
-     * @throws DeclApiCoreException
+     * @throws \Exception
      */
     protected function makeObjectProperties(array $responseRules)
     {
@@ -491,17 +503,38 @@ class ConfigGenerator
         return $json;
     }
 
+    /**
+     * Получает массив обязательных полей
+     *
+     * @param RuleItem[] $responseRules
+     *
+     * @return array
+     * @throws \Exception
+     */
+    protected function getObjectRequiredFields(array $responseRules)
+    {
+        $result = [];
+        foreach ($responseRules as $responseRule) {
+            if ($responseRule->isRequired()) {
+                $result[] = $responseRule->getKey();
+            }
+        }
+        return $result;
+    }
+
 
     /**
      * Создать простой объект
      *
-     * @param RuleItem $responseRule
+     * @return array
+     * @throws \Exception
      */
     public function makeOneResponseProperty(RuleItem $responseRule)
     {
         $object = [
             'type'        => Property::getFormatFromValidator($responseRule->getType()),
-            'description' => $this->makeDescriptionRule($responseRule)
+            'description' => $this->makeDescriptionRule($responseRule),
+            'required'    => $responseRule->isRequired()
         ];
 
         if (($example = $this->getExample($responseRule)) !== null) {
@@ -525,9 +558,9 @@ class ConfigGenerator
      * Создать параметр - массив
      *
      * @param RuleItem $responseRule
-     * @param array    $data
      *
      * @return array
+     * @throws DeclApiCoreException
      */
     public function makeArrayResponseProperty(RuleItem $responseRule)
     {
@@ -551,14 +584,10 @@ class ConfigGenerator
             $object['items'] = [
                 'type'       => 'object',
                 'properties' => $this->makeObjectProperties($rules)
-                // TODO: Нужно сделать как-то дочерние объекты
-                //                'properties' => $this->makeOneResponseProperty($responseRule->getType())
             ];
         } else {
             $object['items'] = [
                 'type' => Property::getFormatFromValidator($responseRule->getType()),
-                // TODO: Нужно сделать как-то дочерние объекты
-                //                'properties' => $this->makeOneResponseProperty($responseRule->getType())
             ];
         }
 
