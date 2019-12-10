@@ -182,7 +182,7 @@ class ConfigGenerator
     /**
      * @param string $className
      *
-     * @return null
+     * @return null|string
      * @throws DeclApiCoreException
      * @throws \Exception
      */
@@ -191,7 +191,7 @@ class ConfigGenerator
         $schemaName = $this->schemaName($className);
 
         if (isset($this->schemas[$schemaName])) {
-            return null;
+            return $schemaName;
         }
 
         if (!$class = $this->getClass($className)) {
@@ -206,7 +206,7 @@ class ConfigGenerator
         if (count($required) > 0) {
             $this->schemas[$schemaName]['required'] = $required;
         }
-        return null;
+        return $schemaName;
     }
 
 
@@ -331,9 +331,9 @@ class ConfigGenerator
      */
     protected function makeParameterHeader(RuleItem $ruleItem): array
     {
-        $data         = $this->makeParameter($ruleItem);
-        $data['in']   = 'header';
-        $data['name'] = str_replace('.*', '', $ruleItem->getKey());
+        $data             = $this->makeParameter($ruleItem);
+        $data['in']       = 'header';
+        $data['name']     = str_replace('.*', '', $ruleItem->getKey());
         $data['required'] = $ruleItem->isRequired();
         return $data;
     }
@@ -349,9 +349,9 @@ class ConfigGenerator
      */
     protected function makeParameterCookie(RuleItem $ruleItem): array
     {
-        $data         = $this->makeParameter($ruleItem);
-        $data['in']   = 'cookie';
-        $data['name'] = $ruleItem->getKey();
+        $data             = $this->makeParameter($ruleItem);
+        $data['in']       = 'cookie';
+        $data['name']     = $ruleItem->getKey();
         $data['required'] = $ruleItem->isRequired();
         return $data;
     }
@@ -366,9 +366,9 @@ class ConfigGenerator
      */
     protected function makeParameterQuery(RuleItem $ruleItem): array
     {
-        $data         = $this->makeParameter($ruleItem);
-        $data['in']   = 'query';
-        $data['name'] = $ruleItem->getKey();
+        $data             = $this->makeParameter($ruleItem);
+        $data['in']       = 'query';
+        $data['name']     = $ruleItem->getKey();
         $data['required'] = $ruleItem->isRequired();
         return $data;
     }
@@ -413,20 +413,13 @@ class ConfigGenerator
     protected function makeResponseOk(ItemObject $response): array
     {
 
-        $responseRules = $response->getRules()->getData();
-
-        $this->addSchema($response->getClassname());
-
-        $json = $this->makeObjectProperties($responseRules);
-
         return [
             'description' => '',
             'content'     => [
                 'application/json' => [
                     'schema' =>
                         [
-                            'type'       => 'object',
-                            'properties' => $json
+                            '$ref'       => $this->refName($this->addSchema($response->getClassname()))
                         ]
                 ]
             ]
@@ -579,14 +572,8 @@ class ConfigGenerator
             }
 
         } elseif ($responseRule->isObject()) {
-            /**
-             * @var \DeclApi\Documentor\ItemObject $itemObject
-             */
-            $itemObject      = $this->classData['object'][$responseRule->getType()];
-            $rules           = $itemObject->getRules()->getData();
             $object['items'] = [
-                'type'       => 'object',
-                'properties' => $this->makeObjectProperties($rules)
+                '$ref'       => $this->refName($this->addSchema($responseRule->getType()))
             ];
         } else {
             $object['items'] = [
