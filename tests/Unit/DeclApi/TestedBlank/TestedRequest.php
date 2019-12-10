@@ -23,7 +23,7 @@ class TestedRequest extends Request
     protected function initRules() {
         $this->rulesInfo()->see('parameter',TestedObjectClass::class);
         $this->rulesInfo()->addJson(TestedObjectChildClass::class,'test', 'Тест', 'Тестовое поле')->setIsObject(true)->setAttributes('required');
-        $this->rulesInfo()->addCookie('integer','cookiesTest', 'Тест', 'Тестовый кукис')->setAttributes('required');
+        $this->rulesInfo()->addCookie('integer','cookiesTest', 'Тест', 'Тестовый кукис')->setAttributes(['required']);
         $this->rulesInfo()->addHeader('integer','headerTest', 'Тест', 'Тестовый заголовок')->setAttributes('required');
     }
 }
