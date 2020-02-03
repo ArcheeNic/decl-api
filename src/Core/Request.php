@@ -35,8 +35,8 @@ abstract class Request extends ObjectClass
     }
 
     /**
-     * @see ObjectClass::mutateAll()
      * @throws \Exception
+     * @see ObjectClass::mutateAll()
      */
     protected function mutateAll()
     {
@@ -67,6 +67,7 @@ abstract class Request extends ObjectClass
     {
         if ($rule->isObject()) {
             $className = $rule->getType();
+
             return new $className($value, false, $this->getValidationFactory());
         } elseif ($rule->getType() === 'integer') {
             return (int)$value;
@@ -88,6 +89,7 @@ abstract class Request extends ObjectClass
         if ($this->rulesInfo === null) {
             $this->rulesInfo = new RulesInfoRequest();
         }
+
         return $this->rulesInfo;
     }
     // endregion
@@ -99,9 +101,22 @@ abstract class Request extends ObjectClass
     public function cleanDiffData()
     {
         foreach ($this->dataMutated() as $target => $targetData) {
-            foreach ($targetData as $targetDataKey=>$targetDataValue){
-                if (!$this->rulesInfo()->get($target,$targetDataKey)) {
-                    unset($this->dataMutated()[$target][$targetDataKey]);
+            foreach ($targetData as $targetDataKey => $targetDataValue) {
+                if (!$this->rulesInfo()->get($target, $targetDataKey)) {
+                    unset($this->dataMutated[$target][$targetDataKey]);
+                    continue;
+                }
+                if ($targetDataValue instanceof ObjectClass) {
+                    $this->dataMutated[$target][$targetDataKey]->cleanDiffData();
+                    continue;
+                }
+
+                if (is_array($targetDataValue)) {
+                    foreach ($targetDataValue as $key => $i) {
+                        if ($i instanceof ObjectClass) {
+                            $this->dataMutated[$target][$targetDataKey][$key]->cleanDiffData();
+                        }
+                    }
                 }
             }
         }
@@ -113,12 +128,10 @@ abstract class Request extends ObjectClass
      * @return \Illuminate\Contracts\Validation\Validator
      * @throws \Exception
      */
-    public function validator(/*TODO downgrade - ?string*/
-        $target = null
-    ): \Illuminate\Contracts\Validation\Validator {
+    public function validator(/*TODO downgrade - ?string*/ $target = null): \Illuminate\Contracts\Validation\Validator
+    {
         if ($target) {
-            return $this->getValidationFactory()->make($this->dataRaw[$target] ?? [],
-                $this->rulesInfo()->rulesGroupCompiled($target));
+            return $this->getValidationFactory()->make($this->dataRaw[$target] ?? [], $this->rulesInfo()->rulesGroupCompiled($target));
         }
 
         return $this->getValidationFactory()->make($this->dataRaw ?? [], $this->rulesInfo()->rulesCompiled());
@@ -132,6 +145,7 @@ abstract class Request extends ObjectClass
         if (!isset($this->dataMutated()[$target][$fieldName])) {
             return false;
         }
+
         return true;
     }
 
@@ -140,6 +154,7 @@ abstract class Request extends ObjectClass
         if ($this->hasTargetField($target, $fieldName)) {
             return $this->dataMutated()[$target][$fieldName];
         }
+
         return null;
     }
 
@@ -165,22 +180,22 @@ abstract class Request extends ObjectClass
 
     public final function getParameterField($fieldName)
     {
-        return $this->getTargetField('parameter',$fieldName);
+        return $this->getTargetField('parameter', $fieldName);
     }
 
     public final function getCookieField($fieldName)
     {
-        return $this->getTargetField('cookie',$fieldName);
+        return $this->getTargetField('cookie', $fieldName);
     }
 
     public final function getHeaderField($fieldName)
     {
-        return $this->getTargetField('header',$fieldName);
+        return $this->getTargetField('header', $fieldName);
     }
 
     public final function getJsonField($fieldName)
     {
-        return $this->getTargetField('json',$fieldName);
+        return $this->getTargetField('json', $fieldName);
     }
 
 }

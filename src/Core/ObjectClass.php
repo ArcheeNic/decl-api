@@ -28,6 +28,7 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
         if ($this->rulesInfo === null) {
             $this->rulesInfo = new RulesInfo();
         }
+
         return $this->rulesInfo;
     }
 
@@ -65,6 +66,7 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
         if ($this->validationFactory === null) {
             $this->validationFactory = new ValidatorFactory();
         }
+
         return $this->validationFactory;
     }
 
@@ -72,9 +74,9 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
      * Создание объекта.
      * Object constructor.
      *
-     * @param array        $data        данные
-     * @param bool         $preValidate предварительная валидация (происходит между записью массива и мутацией)
-     * @param Factory|null $validator
+     * @param  array         $data         данные
+     * @param  bool          $preValidate  предварительная валидация (происходит между записью массива и мутацией)
+     * @param  Factory|null  $validator
      *
      * @throws DeclApiValiadateException
      */
@@ -109,7 +111,7 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
      * Рекомендуется после этого вызвать мутатор, если не будет дополнительных манипуляций с исходными данными (см.
      * конструктор)
      *
-     * @param array $data
+     * @param  array  $data
      */
     protected function setData($data = [])
     {
@@ -123,7 +125,11 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
     {
         foreach ($this->dataMutated() as $key => $value) {
             if (!$this->rulesInfo()->get($key)) {
-                unset($this->dataMutated()[$key]);
+                unset($this->dataMutated[$key]);
+                continue;
+            }
+            if ($value instanceof self) {
+                $this->dataMutated[$key]->cleanDiffData();
             }
         }
     }
@@ -165,8 +171,8 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
     /**
      * Мутация конкретного поля
      *
-     * @param RuleItem $rule
-     * @param          $value
+     * @param  RuleItem  $rule
+     * @param            $value
      *
      * @return mixed
      */
@@ -182,16 +188,17 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
             foreach ($value as $subkey => $subvalue) {
                 $valueMutated[$subkey] = $this->mutate($subrule, $subvalue);
             }
+
             return $valueMutated;
         }
 
         if ($rule->isObject()) {
             $className = $rule->getType();
             if (!is_array($value)) {
-                throw new DeclApiCoreException('Некорретный тип данных. Текущий тип: '.gettype($value).', ожидаемый: '
-                                               .$rule->getType().'. Целевое поле: '.$rule->getKey().'. Значение:'
-                                               .dump($value));
+                throw new DeclApiCoreException('Некорретный тип данных. Текущий тип: '.gettype($value).', ожидаемый: '.$rule->getType()
+                                               .'. Целевое поле: '.$rule->getKey().'. Значение:'.dump($value));
             }
+
             return new $className($value, false, $this->getValidationFactory());
         }
 
@@ -294,6 +301,7 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
                 }
             }
         }
+
         return $array;
     }
 
