@@ -123,7 +123,7 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
     {
         foreach ($this->dataMutated() as $key => $value) {
             if (!$this->rulesInfo()->get($key)) {
-                unset($this->dataMutated()[$value]);
+                unset($this->dataMutated()[$key]);
             }
         }
     }
