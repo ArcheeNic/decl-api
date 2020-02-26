@@ -1,6 +1,7 @@
 <?php namespace DeclApi\Core\Frameworks;
 
 use DeclApi\Core\DeclApiException;
+use DeclApi\Core\DeclApiValiadateException;
 use DeclApi\Core\DiffFieldsObject;
 use DeclApi\Core\ObjectClass;
 use DeclApi\Core\Point;
@@ -27,15 +28,13 @@ abstract class Laravel5Point extends Point implements BridgeContract
     protected $illuminateResponse;
 
     /**
-     * @param \Illuminate\Http\Request  $illuminateRequest
-     * @param \Illuminate\Http\Response $illuminateResponse
+     * @param  \Illuminate\Http\Request   $illuminateRequest
+     * @param  \Illuminate\Http\Response  $illuminateResponse
      *
      * @return \Illuminate\Http\Response
      * @throws \Exception
      */
-    public function __invoke(
-        \Illuminate\Http\Request $illuminateRequest,
-        \Illuminate\Http\Response $illuminateResponse
+    public function __invoke(\Illuminate\Http\Request $illuminateRequest, \Illuminate\Http\Response $illuminateResponse
     ): \Illuminate\Http\Response {
         $this->illuminateResponse = $illuminateResponse;
         $this->illuminateRequest  = $illuminateRequest;
@@ -49,7 +48,7 @@ abstract class Laravel5Point extends Point implements BridgeContract
             /**
              * @var Request $requestEnd
              */
-            $requestEnd = new $requestType(static::requestToArray($illuminateRequest),true, new ValidatorFactory(app(Factory::class)));
+            $requestEnd = new $requestType(static::requestToArray($illuminateRequest), true, new ValidatorFactory(app(Factory::class)));
 
             // проверяем диффы
             $this->requestCheckDiffErrors(DiffFieldsObject::diffRequest($requestEnd));
@@ -71,18 +70,24 @@ abstract class Laravel5Point extends Point implements BridgeContract
                     return $this->abort(400, $validator->errors());
                 }
             }
+        } catch (DeclApiValiadateException $exception) {
+            return $this->abort(400, [
+                'title'       => 'request validation error',
+                'description' => json_decode($exception->getMessage()),
+            ]);
         } catch (DeclApiException $exception) {
             return $this->abort($exception->getResponseCode(), [
                 'title'       => $exception->getTitle(),
-                'description' => $exception->getDescription()
+                'description' => $exception->getDescription(),
             ], $exception->getHeaders());
         } catch (\Exception $exception) {
             if (env('APP_DEBUG')) {
-                return $this->abort(501,
-                    ['message' => $exception->getMessage(), 'trace' => explode("\n", $exception->getTraceAsString())]);
+                return $this->abort(501, ['message' => $exception->getMessage(), 'trace' => explode("\n", $exception->getTraceAsString())]);
             }
+
             return $this->abort(501, ['message' => 'Произошла системная ошибка. Обратитесь к разарботчикам']);
         }
+
         return $this->illuminateResponse->setContent($response->jsonSerialize());
     }
 
@@ -106,6 +111,7 @@ abstract class Laravel5Point extends Point implements BridgeContract
         if (!empty($headers)) {
             $response->withHeaders($headers);
         }
+
         return $response;
     }
 
