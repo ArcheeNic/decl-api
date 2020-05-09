@@ -200,7 +200,7 @@ use App\Api\ExampleResponse;
 
 Добавим в api.php строку
 ```
-Route::get('/example','Api/ExamplePoint');
+Route::get('/example','Api\ExamplePoint');
 ```
 
 Теперь наш Point будет вызываться при обращении по URI `/api/example`
