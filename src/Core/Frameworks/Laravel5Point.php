@@ -118,7 +118,7 @@ abstract class Laravel5Point extends Point implements BridgeContract
     static public function requestToArray(\Illuminate\Http\Request $illuminateRequest): array
     {
         return [
-            'parameter' => $illuminateRequest->all(),
+            'parameter' => $illuminateRequest->route()->parameters(),
             'header'    => $illuminateRequest->header(),
             'json'      => $illuminateRequest->json()->all(),
         ];
