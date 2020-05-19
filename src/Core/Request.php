@@ -65,6 +65,9 @@ abstract class Request extends ObjectClass
      */
     protected function mutate(RuleItem $rule, $value)
     {
+        if($value === null && in_array('nullable',$rule->getAttributes())){
+            return $value;
+        }
         if ($rule->isObject()) {
             $className = $rule->getType();
 
