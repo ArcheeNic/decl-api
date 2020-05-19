@@ -176,6 +176,10 @@ abstract class ObjectClass implements \IteratorAggregate, \JsonSerializable
      */
     protected function mutate(RuleItem $rule, $value)
     {
+        if($value === null && in_array('nullable',$rule->getAttributes())){
+            return $value;
+        }
+
         if ($rule->isArray()) {
             if (!is_array($value)) {
                 return [];

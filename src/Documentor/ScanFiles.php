@@ -105,10 +105,10 @@ class ScanFiles extends \DeclApi\Documentor\FileSystem
 
         foreach ($array as $value) {
             $content = file_get_contents($this->root.'/'.$value['path']);
-            if (preg_match('!namespace (.*?);$!mui', $content, $namespace)) {
+            if (preg_match('!namespace (.*?);[\n\r]!mui', $content, $namespace)) {
                 $namespace = $namespace[1];
             }
-            if (preg_match('!class (.*?) .*?$!mui', $content, $classname)) {
+            if (preg_match('!class (.*?) .*?[\n\r]!mui', $content, $classname)) {
                 $classname = $classname[1];
             }
 
