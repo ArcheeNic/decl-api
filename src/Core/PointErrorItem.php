@@ -32,24 +32,85 @@ final class PointErrorItem
      * @var int $httpCode http код ответа
      */
     protected $httpCode = 501;
-
     /**
-     * @return string|null
+     * @var bool $regExKey является ли ключ - регулярным выражением
      */
-    public function getKey()/*TODO downgrade - : ?string*/
-    {
-        return $this->key;
-    }
+    protected $regexKey = false;
 
+// region Setters
     /**
-     * @param string|null $key
+     * @param  string|null  $key
      *
      * @return PointErrorItem
      */
     public function setKey(/*TODO downgrade - ?string*/ $key): PointErrorItem
     {
         $this->key = $key;
+
         return $this;
+    }
+
+    /**
+     * @param  string  $docDescription
+     *
+     * @return PointErrorItem
+     */
+    public function setDocDescription(string $docDescription): PointErrorItem
+    {
+        $this->docDescription = $docDescription;
+
+        return $this;
+    }
+
+    /**
+     * @param  string  $errorTitle
+     *
+     * @return PointErrorItem
+     */
+    public function setErrorTitle(string $errorTitle): PointErrorItem
+    {
+        $this->errorTitle = $errorTitle;
+
+        return $this;
+    }
+
+    /**
+     * @param  string  $errorDescription
+     *
+     * @return PointErrorItem
+     */
+    public function setErrorDescription(string $errorDescription): PointErrorItem
+    {
+        $this->errorDescription = $errorDescription;
+
+        return $this;
+    }
+
+    /**
+     * @param  int  $httpCode
+     *
+     * @return PointErrorItem
+     */
+    public function setHttpCode(int $httpCode): PointErrorItem
+    {
+        $this->httpCode = $httpCode;
+
+        return $this;
+    }
+
+    public function setRegexKey(bool $bool = true)
+    {
+        $this->regexKey = $bool;
+    }
+// endregion Setters
+
+// region Getters
+    /**
+     * @return string|null
+     */
+    public function getKey()/*TODO downgrade - : ?string*/
+    {
+        return $this->key;
     }
 
     /**
@@ -61,33 +122,11 @@ final class PointErrorItem
     }
 
     /**
-     * @param string $docDescription
-     *
-     * @return PointErrorItem
-     */
-    public function setDocDescription(string $docDescription): PointErrorItem
-    {
-        $this->docDescription = $docDescription;
-        return $this;
-    }
-
-    /**
      * @return string
      */
     public function getErrorTitle()
     {
         return $this->errorTitle;
-    }
-
-    /**
-     * @param string $errorTitle
-     *
-     * @return PointErrorItem
-     */
-    public function setErrorTitle(string $errorTitle): PointErrorItem
-    {
-        $this->errorTitle = $errorTitle;
-        return $this;
     }
 
     /**
@@ -99,17 +138,6 @@ final class PointErrorItem
     }
 
     /**
-     * @param string $errorDescription
-     *
-     * @return PointErrorItem
-     */
-    public function setErrorDescription(string $errorDescription): PointErrorItem
-    {
-        $this->errorDescription = $errorDescription;
-        return $this;
-    }
-
-    /**
      * @return int
      */
     public function getHttpCode(): int
@@ -118,15 +146,13 @@ final class PointErrorItem
     }
 
     /**
-     * @param int $httpCode
-     *
-     * @return PointErrorItem
+     * @return bool
      */
-    public function setHttpCode(int $httpCode): PointErrorItem
+    public function isRegexKey(): bool
     {
-        $this->httpCode = $httpCode;
-        return $this;
+        return $this->regexKey;
     }
+// endregion Getters
 
     public function toArray(): array
     {

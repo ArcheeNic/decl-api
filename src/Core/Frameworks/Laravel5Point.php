@@ -27,6 +27,16 @@ abstract class Laravel5Point extends Point implements BridgeContract
      */
     protected $illuminateResponse;
 
+    protected function requestCheckDiffErrors($errors = [])
+    {
+        return null;
+    }
+
+    protected function responseCheckDiffErrors($errors = [])
+    {
+        return null;
+    }
+
     /**
      * @param  \Illuminate\Http\Request   $illuminateRequest
      * @param  \Illuminate\Http\Response  $illuminateResponse
@@ -85,20 +95,25 @@ abstract class Laravel5Point extends Point implements BridgeContract
                 return $this->abort(501, ['message' => $exception->getMessage(), 'trace' => explode("\n", $exception->getTraceAsString())]);
             }
 
+            $errorsInfo = $this->errorsInfo()->getData();
+            foreach ($errorsInfo as $key => $errorItem) {
+                if($errorItem->isRegexKey() && preg_match('!'.$key.'!ui',$exception->getMessage())){
+                    return $this->abort($exception->getResponseCode(), [
+                        'title'       => $exception->getMessage(),
+                        'description' => $errorItem->getErrorDescription()
+                    ], $exception->getHeaders());
+                }elseif($key === $exception->getMessage()){
+                    return $this->abort($exception->getResponseCode(), [
+                        'title'       => $key,
+                        'description' => $errorItem->getErrorDescription()
+                    ], $exception->getHeaders());
+                }
+            }
+
             return $this->abort(501, ['message' => 'Произошла системная ошибка. Обратитесь к разарботчикам']);
         }
 
         return $this->illuminateResponse->setContent($response->jsonSerialize());
-    }
-
-    protected function requestCheckDiffErrors($errors = [])
-    {
-        return null;
-    }
-
-    protected function responseCheckDiffErrors($errors = [])
-    {
-        return null;
     }
 
     public function abort($code = 501, $message, $headers = [])
