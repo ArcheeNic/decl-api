@@ -166,6 +166,11 @@ abstract class Request extends ObjectClass
         return $this->hasTargetField('parameter', $fieldName);
     }
 
+    public final function hasParameterRouteField($fieldName): bool
+    {
+        return $this->hasTargetField('parameterRoute', $fieldName);
+    }
+
     public final function hasCookieField($fieldName): bool
     {
         return $this->hasTargetField('cookie', $fieldName);
@@ -184,6 +189,11 @@ abstract class Request extends ObjectClass
     public final function getParameterField($fieldName)
     {
         return $this->getTargetField('parameter', $fieldName);
+    }
+
+    public final function getParameterRouteField($fieldName)
+    {
+        return $this->getTargetField('parameterRoute', $fieldName);
     }
 
     public final function getCookieField($fieldName)

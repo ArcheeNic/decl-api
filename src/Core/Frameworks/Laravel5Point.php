@@ -97,15 +97,15 @@ abstract class Laravel5Point extends Point implements BridgeContract
 
             $errorsInfo = $this->errorsInfo()->getData();
             foreach ($errorsInfo as $key => $errorItem) {
-                if($errorItem->isRegexKey() && preg_match('!'.$key.'!ui',$exception->getMessage())){
+                if ($errorItem->isRegexKey() && preg_match('!'.$key.'!ui', $exception->getMessage())) {
                     return $this->abort($exception->getResponseCode(), [
                         'title'       => $exception->getMessage(),
-                        'description' => $errorItem->getErrorDescription()
+                        'description' => $errorItem->getErrorDescription(),
                     ], $exception->getHeaders());
-                }elseif($key === $exception->getMessage()){
+                } elseif ($key === $exception->getMessage()) {
                     return $this->abort($exception->getResponseCode(), [
                         'title'       => $key,
-                        'description' => $errorItem->getErrorDescription()
+                        'description' => $errorItem->getErrorDescription(),
                     ], $exception->getHeaders());
                 }
             }
@@ -133,9 +133,10 @@ abstract class Laravel5Point extends Point implements BridgeContract
     static public function requestToArray(\Illuminate\Http\Request $illuminateRequest): array
     {
         return [
-            'parameter' => $illuminateRequest->route()->parameters(),
-            'header'    => $illuminateRequest->header(),
-            'json'      => $illuminateRequest->json()->all(),
+            'parameter'      => $illuminateRequest->all(),
+            'parameterRoute' => $illuminateRequest->route()->parameters(),
+            'header'         => $illuminateRequest->header(),
+            'json'           => $illuminateRequest->json()->all(),
         ];
     }
 }
