@@ -90,11 +90,7 @@ abstract class Laravel5Point extends Point implements BridgeContract
                 'title'       => $exception->getTitle(),
                 'description' => $exception->getDescription(),
             ], $exception->getHeaders());
-        } catch (\Exception $exception) {
-            if (env('APP_DEBUG')) {
-                return $this->abort(501, ['message' => $exception->getMessage(), 'trace' => explode("\n", $exception->getTraceAsString())]);
-            }
-
+        } catch (\RuntimeException $exception) {
             $errorsInfo = $this->errorsInfo()->getData();
             foreach ($errorsInfo as $key => $errorItem) {
                 if ($errorItem->isRegexKey() && preg_match('!'.$key.'!ui', $exception->getMessage())) {
@@ -102,7 +98,9 @@ abstract class Laravel5Point extends Point implements BridgeContract
                         'title'       => $exception->getMessage(),
                         'description' => $errorItem->getErrorDescription(),
                     ], $exception->getHeaders());
-                } elseif ($key === $exception->getMessage()) {
+                }
+
+                if ($key === $exception->getMessage()) {
                     return $this->abort($exception->getResponseCode(), [
                         'title'       => $key,
                         'description' => $errorItem->getErrorDescription(),
@@ -110,7 +108,13 @@ abstract class Laravel5Point extends Point implements BridgeContract
                 }
             }
 
-            return $this->abort(501, ['message' => 'Произошла системная ошибка. Обратитесь к разарботчикам']);
+            return $this->abort(501, ['message' => 'Ошибка не задекларированна. Обратитесь к разработчикам']);
+        } catch (\Exception $exception) {
+            if (env('APP_DEBUG')) {
+                return $this->abort(501, ['message' => $exception->getMessage(), 'trace' => explode("\n", $exception->getTraceAsString())]);
+            }
+
+            return $this->abort(501, ['message' => 'Произошла системная ошибка. Обратитесь к разработчикам']);
         }
 
         return $this->illuminateResponse->setContent($response->jsonSerialize());
