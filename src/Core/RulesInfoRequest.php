@@ -14,6 +14,7 @@ class RulesInfoRequest
     protected $data
         = [
             'parameter' => [],
+            'parameterRoute' => [],
             'header'    => [],
             'cookie'    => [],
             'json'      => []
