@@ -59,6 +59,21 @@ class RulesInfoRequest
     {
         return $this->add('parameter', $type, $key, $title, $description);
     }
+    /**
+     * Данные, в теле документа
+     *
+     * @param string $type        тип (если класс - его имя)
+     * @param string $key         ключ по которому будет искаться
+     * @param string $title       название поле для документации
+     * @param string $description детальное описание
+     *
+     * @return RuleItem
+     * @throws \Exception
+     */
+    public function addParameterRoute($type, $key, $title, $description): RuleItem
+    {
+        return $this->add('parameterRoute', $type, $key, $title, $description);
+    }
 
     /**
      * Данные, в cookies
@@ -93,7 +108,7 @@ class RulesInfoRequest
     }
 
     /**
-     * @param string $target      цель - header, cookies, parameter (post или get), json (тело в виде json)
+     * @param string $target      цель - header, cookies, parameterRoute (всё, что внутри строки), parameter (post или get), json (тело в виде json)
      * @param string $type        тип (если класс - его имя)
      * @param string $key         ключ по которому будет искаться
      * @param string $title       название поле для документации
@@ -111,7 +126,7 @@ class RulesInfoRequest
     /**
      * Смотреть правила в классе объекта
      *
-     * @param string $target    цель - header, cookies, parameter (post или get), json (тело в виде json)
+     * @param string $target    цель - header, cookies, parameterRoute (всё, что внутри строки), parameter (post или get), json (тело в виде json)
      * @param string $className имя класса у которого нужно зарать правила
      *
      * @return RuleItem[]
