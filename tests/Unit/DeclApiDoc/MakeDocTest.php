@@ -5,6 +5,7 @@ namespace Tests\Unit\DeclApiDoc;
 use \DeclApi\Documentor\OpenApi3\MakeDoc;
 use DeclApi\Documentor\ScanFiles;
 use PHPUnit\Framework\TestCase;
+use Tests\Unit\DeclApi\TestedBlank\TestedPoint;
 
 class MakeDocTest extends TestCase
 {
@@ -31,7 +32,7 @@ class MakeDocTest extends TestCase
                             'method' => 'GET',
                             'action' => 'declApi/test',
                             'name'   => 'declApi.test',
-                            'class'  => 'Tests\\Unit\\DeclApi\\TestedBlank\\TestedPoint',
+                            'class'  => TestedPoint::class,
                         ],
                 ],
         ];

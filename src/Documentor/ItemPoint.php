@@ -33,7 +33,8 @@ class ItemPoint extends ItemInfo
 
         $handlerMethod = $reflection->getMethod('handler');
 
-        $this->response = (string)$handlerMethod->getReturnType();
+        $responseType = $handlerMethod->getReturnType();
+        $this->response = $responseType?$responseType->getName():null;
 
         if (!$this->response) {
             throw new \Exception('Отсутствует информация о response типе объекта класса .'.$classname);

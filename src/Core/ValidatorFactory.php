@@ -21,7 +21,7 @@ class ValidatorFactory
 
     protected function loadTranslator($locale = 'en', $url = null)
     {
-        $file       = dirname(__FILE__).'/lang';
+        $file       = __DIR__.'/lang';
         $filesystem = new Filesystem();
         $loader     = new Translation\FileLoader($filesystem, $file);
         $loader->addNamespace('lang', $file);
