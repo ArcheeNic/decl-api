@@ -50,7 +50,10 @@ class ItemPoint extends ItemInfo
             throw new \Exception('Отсутствует информация о request типе объекта класса .'.$classname);
         }
 
-        $this->request = (string) $requestType->getType();
+
+        $requestTypeType = $requestType->getType();
+        $this->request = $requestTypeType?$requestTypeType->getName():null;
+
         if (!$this->request) {
             throw new \Exception('Отсутствует информация о request типе объекта класса .'.$classname);
         }
