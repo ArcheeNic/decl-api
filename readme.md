@@ -26,13 +26,13 @@
     "repositories": [
         {
             "type": "vcs",
-            "url":  "gogs@gogs.inetpartners.org:eautopay/decl-api.git"
+            "url":  "gogs@gogs.inetpartners.org:archee-nic/decl-api.git"
         }
     ]
 ```
 
 Далее в консоли можно написать
-`composer require eautopay/decl-api`
+`composer require archee-nic/decl-api`
 
 ### Описание
 [к оглавлению](#оглавление)
